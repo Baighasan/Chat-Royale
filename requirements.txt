@@ -1,3 +1,2 @@
-dotenv
 requests
 mcp[cli]

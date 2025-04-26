@@ -1,22 +1,29 @@
 import os
-from dotenv import load_dotenv
 import requests
 from mcp.server import FastMCP
 
-# Instantiate FastMCP server
-mcp = FastMCP("Clash Royale", dependancies=["requests"])
-
-# Load variables from .env file
-load_dotenv()
+# Instantiate FastMCP server with explicit host and port
+mcp = FastMCP("Clash Royale", dependencies=["requests"],)
 
 # Constants
 CR_API_BASE = "https://api.clashroyale.com/v1"
 CR_API_KEY = os.getenv("CR_API_KEY")
 
-@mcp.resource("player_info/{player_tag}")
+# Validate API key
+if not CR_API_KEY:
+    raise ValueError("CR_API_KEY environment variable is required")
+
+# Resource path with standard MCP format
+@mcp.tool()
 def get_player_info(player_tag: str) -> dict:
     """
     Fetch player info from Clash Royale API.
+    
+    Args:
+        player_tag: The player tag to look up (e.g. #ABCDEF)
+        
+    Returns:
+        Player information including stats, cards, etc.
     """
     player_tag = player_tag.replace('#', '%23')
 
@@ -31,7 +38,8 @@ def get_player_info(player_tag: str) -> dict:
         return response.json()
     else:
         raise Exception(f"Error fetching player info: {response.status_code} - {response.text}")
+
     
 if __name__ == "__main__":
-    # Start the server
+    # Start the server explicitly with host and port
     mcp.run()
