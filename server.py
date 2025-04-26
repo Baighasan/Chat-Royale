@@ -13,7 +13,7 @@ load_dotenv()
 CR_API_BASE = "https://api.clashroyale.com/v1"
 CR_API_KEY = os.getenv("CR_API_KEY")
 
-@mcp.resource("player_info")
+@mcp.resource("player_info/{player_tag}")
 def get_player_info(player_tag: str) -> dict:
     """
     Fetch player info from Clash Royale API.
@@ -31,3 +31,7 @@ def get_player_info(player_tag: str) -> dict:
         return response.json()
     else:
         raise Exception(f"Error fetching player info: {response.status_code} - {response.text}")
+    
+if __name__ == "__main__":
+    # Start the server
+    mcp.run()
