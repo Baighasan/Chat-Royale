@@ -1,37 +1,36 @@
-# Python
+# Python cache files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
 
 # Virtual environments
 venv/
-ENV/
 env/
+ENV/
+.venv/
 
-# IDE specific files
+# Package files
+*.egg-info/
+dist/
+build/
+
+# Development files
+.git
+.gitignore
 .idea/
 .vscode/
-*.swp
-*.swo
 
-# Local development files
+# Local development configuration
 .env
-.env.local
-.env.development.local
+.env.*
+
+# Lock files
+uv.lock
+
+# Docs
+README.md
+
+# Tests
+tests/
