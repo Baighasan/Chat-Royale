@@ -4,6 +4,10 @@ import requests
 CR_API_BASE = "https://api.clashroyale.com/v1"
 CR_API_KEY = os.getenv("CR_API_KEY")
 
+# Validate API key
+if not CR_API_KEY:
+    raise ValueError("CR_API_KEY environment variable is required")
+
 def make_api_request(endpoint: str, player_tag: str = None) -> dict:
     """
     Make an API request to the Clash Royale API.
@@ -15,11 +19,7 @@ def make_api_request(endpoint: str, player_tag: str = None) -> dict:
     Returns:
         JSON response from the API
     """
-    if player_tag:
-        player_tag = player_tag.replace('#', '%23')
-        url = f"{CR_API_BASE}/{endpoint}/{player_tag}"
-    else:
-        url = f"{CR_API_BASE}/{endpoint}"
+    url = f"{CR_API_BASE}/{endpoint}"
         
     headers = {
         "Authorization": f"Bearer {CR_API_KEY}"
@@ -31,3 +31,16 @@ def make_api_request(endpoint: str, player_tag: str = None) -> dict:
         return response.json()
     else:
         raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
+
+
+def encode_player_tag(player_tag: str) -> str:
+    """
+    Encode player tag for URL.
+    
+    Args:
+        player_tag: The player tag to encode
+        
+    Returns:
+        Encoded player tag
+    """
+    return player_tag.replace('#', '%23')
