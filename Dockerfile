@@ -2,11 +2,15 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+# Install uv
+RUN pip install uv
+
 # Copy project files
-COPY requirements.txt server.py ./
+COPY . .
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m venv .venv
+RUN uv pip install -e .
 
 # Command to run the MCP server
-CMD ["python", "src/server.py"]
+CMD ["uv", "run", "src/main.py"]
