@@ -1,4 +1,4 @@
-from utils import make_api_request, encode_player_tag
+from .utils import make_api_request, encode_tag
 
 def register_player_tools(mcp):
     """
@@ -19,8 +19,10 @@ def register_player_tools(mcp):
         Returns:
             Player information including stats, cards, etc.
         """
-        player_tag = encode_player_tag(player_tag)
-        return make_api_request(f"players/{player_tag}")
+        player_tag = encode_tag(player_tag)
+        endpoint = f"players/{player_tag}"
+        
+        return make_api_request(endpoint)
 
     @mcp.tool()
     def get_player_upcoming_chests(player_tag: str) -> dict:
@@ -33,8 +35,10 @@ def register_player_tools(mcp):
         Returns:
             Upcoming chests information including the index and name.
         """
-        player_tag = encode_player_tag(player_tag)
-        return make_api_request(f"players/{player_tag}/upcomingchests")
+        player_tag = encode_tag(player_tag)
+        endpoint = f"players/{player_tag}/upcomingchests"
+        
+        return make_api_request(endpoint)
 
     @mcp.tool()
     def get_player_battle_log(player_tag: str) -> dict:
@@ -47,5 +51,7 @@ def register_player_tools(mcp):
         Returns:
             Battle log information including the battle details.
         """
-        player_tag = encode_player_tag(player_tag)
-        return make_api_request(f"players/{player_tag}/battlelog")
+        player_tag = encode_tag(player_tag)
+        endpoint = f"players/{player_tag}/battlelog"
+        
+        return make_api_request(endpoint)
