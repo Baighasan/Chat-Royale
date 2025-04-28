@@ -1,5 +1,5 @@
 from mcp.server import FastMCP
-from tools import register_player_tools, register_clan_tools
+from tools import register_player_tools, register_clan_tools, register_card_tools
 
 # Instantiate FastMCP server with explicit host and port
 mcp = FastMCP("Clash Royale", dependencies=["requests"],)
@@ -7,6 +7,7 @@ mcp = FastMCP("Clash Royale", dependencies=["requests"],)
 # Register all tools
 register_player_tools(mcp)
 register_clan_tools(mcp)
+register_card_tools(mcp)
     
 if __name__ == "__main__":
     # Start the server explicitly with host and port
