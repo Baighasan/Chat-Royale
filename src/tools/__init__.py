@@ -2,6 +2,7 @@
 from .utils import make_api_request, encode_tag, build_query_string
 from .players import register_player_tools
 from .clans import register_clan_tools
+from .cards import register_card_tools
 
 __all__ = [
     "register_player_tools",
