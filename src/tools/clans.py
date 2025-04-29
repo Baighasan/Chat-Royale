@@ -1,6 +1,6 @@
 from .utils import make_api_request, encode_tag, build_query_string
 
-def register_clan_tools(mcp):
+def register_clans_tools(mcp):
     """
     Register all clan-related tools with the MCP server.
     

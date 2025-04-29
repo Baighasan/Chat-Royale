@@ -1,6 +1,6 @@
 from .utils import make_api_request, encode_tag
 
-def register_player_tools(mcp):
+def register_players_tools(mcp):
     """
     Register all player-related tools with the MCP server.
     
