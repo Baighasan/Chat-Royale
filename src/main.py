@@ -22,7 +22,8 @@ register_locations_tools(mcp)
 register_challenges_tools(mcp)
 register_leaderboards_tools(mcp)
 register_globaltournaments_tools(mcp)
-    
+
+
 if __name__ == "__main__":
     # Start the server explicitly with host and port
     mcp.run()
