@@ -66,13 +66,16 @@ def register_clans_tools(mcp):
         before: str = None
         ) -> dict:
         """
-        Searches for clans based on various parameters. Retrieves info about the clans that match the search criteria.
+        Searches for clans based on various parameters. Retrieves info about the clans that match the search criteria. This tool is
+        useful if a user asked about a clan by name, as this tool can be used to search for that clan, retrieve the id and 
+        subsequently retrieve the specific clan information using the `get_clan_info` tool.
         
         Args:
             name: Search clans by name. If name is used as part of search query, it needs to be at least three characters long.
                 Name search parameter is interpreted as wild card search, so it may appear anywhere in the clan name. (optional)
             
-            location_id: Filter by clan location identifier. For list of available locations, refer to getLocations operation. (optional)
+            location_id: Filter by clan location identifier. To get the list of available locations and their ids, use the 
+            `get_locations` tool. (optional)
             
             min_members: Filter by minimum number of clan members. (optional)
             
@@ -127,7 +130,8 @@ def register_clans_tools(mcp):
         Fetch clan river race log from the Clash Royale API.
         
         Args:
-            clan_tag: The clan tag to look up (e.g. #ABCDEF)
+            clan_tag: The clan tag to look up (e.g. #ABCDEF). This should either be provided by the user in the
+            format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
             
             limit: Limit the number of items returned in the response. (optional)
             
@@ -181,7 +185,8 @@ def register_clans_tools(mcp):
     @mcp.tool()
     def get_clan_info(clan_tag: str) -> dict:
         """
-        Fetch detailed information about a specific clan from the Clash Royale API.
+        Fetch detailed information about a specific clan from the Clash Royale API. This should either be provided by the user in the
+            format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
         
         Args:
             clan_tag: The clan tag to look up (e.g. #ABCDEF)
@@ -205,7 +210,8 @@ def register_clans_tools(mcp):
         Fetch the list of members in a clan from the Clash Royale API.
         
         Args:
-            clan_tag: The clan tag to look up (e.g. #ABCDEF)
+            clan_tag: The clan tag to look up (e.g. #ABCDEF). This should either be provided by the user in the
+            format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
             
             limit: Limit the number of items returned in the response. (optional)
             
@@ -240,7 +246,8 @@ def register_clans_tools(mcp):
     @mcp.tool()
     def get_clan_current_river_race(clan_tag: str) -> dict:
         """
-        Fetch information about the clan's current river race from the Clash Royale API.
+        Fetch information about the clan's current river race from the Clash Royale API. This should either be provided by the user in the
+            format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
         
         Args:
             clan_tag: The clan tag to look up (e.g. #ABCDEF)

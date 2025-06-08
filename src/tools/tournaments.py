@@ -17,6 +17,8 @@ def register_tournaments_tools(mcp):
         ) -> dict:
         """
         Search for tournaments based on name. Retrieves info about tournaments that match the search criteria.
+        These are player made tournaments, not official tournaments. This should only be used if a player is specifically
+        searching for a player-created tournament.
         
         Args:
             name: Search tournaments by name. If name is used as part of search query, it needs to be at least three characters long.
@@ -57,7 +59,9 @@ def register_tournaments_tools(mcp):
     @mcp.tool()
     def get_tournament_info(tournament_tag: str) -> dict:
         """
-        Fetch detailed information about a specific tournament from the Clash Royale API.
+        Fetch detailed information about a specific tournament from the Clash Royale API. These are player made tournaments, 
+        not official tournaments. This should only be used if a player is specifically searching for a player-created 
+        tournament.
         
         Args:
             tournament_tag: The tournament tag to look up (e.g. #ABCDEF)

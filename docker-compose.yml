@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  clash-royale-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clash-royale-mcp-server
+    environment:
+      - CR_API_KEY=${CR_API_KEY}
+    env_file:
+      - .env
+    restart: unless-stopped
