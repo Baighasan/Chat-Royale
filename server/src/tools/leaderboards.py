@@ -16,7 +16,8 @@ def register_leaderboards_tools(mcp):
         before: str = None
         ) -> dict:
         """
-        Fetch information about a specific leaderboard from the Clash Royale API.
+        Fetch information about a specific leaderboard from the Clash Royale API. These leaderboards are not the regular ladder or path of legends, these are for any temporary gamemodes such as 2v2 ladder.
+        To get a list of all available leaderboards and their ids, use the `get_leaderboards` tool.
         
         Args:
             leaderboard_id: The unique identifier for the leaderboard
@@ -53,7 +54,7 @@ def register_leaderboards_tools(mcp):
     @mcp.tool()
     def get_leaderboards() -> dict:
         """
-        Fetch all available leaderboards from the Clash Royale API.
+        Fetch all available leaderboards from the Clash Royale API. These leaderboards are not the regular ladder or path of legends, these are for any temporary gamemodes such as 2v2 ladder.
         
         Returns:
             A list of all available leaderboards.
