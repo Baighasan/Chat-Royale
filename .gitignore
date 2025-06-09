@@ -13,3 +13,6 @@ wheels/
 # IDEs
 .idea
 .vscode
+
+# Node.js
+node_modules/
