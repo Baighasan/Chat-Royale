@@ -9,6 +9,45 @@ def register_locations_tools(mcp):
     """
     
     @mcp.tool()
+    def get_locations() -> dict:
+        """
+        Fetch a list of all the available locations alongside their ids from the Clash Royale API.
+        
+        Returns:
+            A list of all locations and their information including IDs, names, and region details.
+        """
+        endpoint = "locations"
+        
+        return make_api_request(endpoint)
+
+    @mcp.tool()
+    def get_seasons() -> dict:
+        """
+        Fetch a list of all the available seasons alongside their ids from the Clash Royale API.
+        
+        Returns:
+            A list of all seasons and their identifiers.
+        """
+        endpoint = "locations/global/seasonsV2"
+        
+        return make_api_request(endpoint)
+    
+    @mcp.tool()
+    def get_location_info(location_id: int) -> dict:
+        """
+        Fetch information about a specific location from the Clash Royale API.
+        
+        Args:
+            location_id: The location identifier. To get a list of all locations and their ids, use the get_locations tool.
+
+        Returns:
+            Information about the specified location including name, region, and other details.
+        """
+        endpoint = f"locations/{location_id}"
+        
+        return make_api_request(endpoint)
+    
+    @mcp.tool()
     def get_location_clan_rankings(
         location_id: int,
         limit: int = None,
@@ -19,7 +58,7 @@ def register_locations_tools(mcp):
         Fetch clan rankings for a specific location from the Clash Royale API.
         
         Args:
-            location_id: The location identifier
+            location_id: The location identifier. To get a list of all locations and their ids, use the get_locations tool.
             
             limit: Limit the number of items returned in the response. (optional)
             
@@ -61,7 +100,7 @@ def register_locations_tools(mcp):
         Fetch player rankings for a specific location from the Clash Royale API.
         
         Args:
-            location_id: The location identifier
+            location_id: The location identifier. To get a list of all locations and their ids, use the get_locations tool.
             
             limit: Limit the number of items returned in the response. (optional)
             
@@ -103,10 +142,10 @@ def register_locations_tools(mcp):
         Fetch clan war rankings for a specific location from the Clash Royale API.
         
         Args:
-            location_id: The location identifier
-            
+            location_id: The location identifier. To get a list of all locations and their ids, use the get_locations tool.
+
             limit: Limit the number of items returned in the response. (optional)
-            
+
             after: Return only items that occur after this marker. Before marker can be found from the response, inside the 'paging' property.
                 Note that only after or before can be specified for a request, not both. (optional)
             
@@ -145,10 +184,10 @@ def register_locations_tools(mcp):
         Fetch global Path of Legends player rankings for a specific season from the Clash Royale API.
         
         Args:
-            season_id: The season identifier (e.g. "2023-01")
-            
+            season_id: The season identifier. To get a list of all seasons and their ids, use the get_seasons tool.
+
             limit: Limit the number of items returned in the response. (optional)
-            
+
             after: Return only items that occur after this marker. Before marker can be found from the response, inside the 'paging' property.
                 Note that only after or before can be specified for a request, not both. (optional)
             
@@ -186,7 +225,7 @@ def register_locations_tools(mcp):
         Fetch global data for a specific season from the Clash Royale API.
         
         Args:
-            season_id: The season identifier (e.g. "2023-01")
+            season_id: The season identifier. To get a list of all seasons and their ids, use the get_seasons tool.
             
         Returns:
             Season player rankings for the specified season.
@@ -208,7 +247,7 @@ def register_locations_tools(mcp):
         Fetch top player rankings for a specific season from the Clash Royale API.
         
         Args:
-            season_id: The season identifier (e.g. "2023-01")
+            season_id: The season identifier. To get a list of all seasons and their ids, use the get_seasons tool.
             
             limit: Limit the number of items returned in the response. (optional)
             
@@ -240,43 +279,46 @@ def register_locations_tools(mcp):
             endpoint += "?" + build_query_string(queries)
         
         return make_api_request(endpoint)
-
+    
     @mcp.tool()
-    def get_location_info(location_id: int) -> dict:
+    def get_location_path_of_legends_player_rankings(
+        location_id: int,
+        limit: int = None,
+        after: str = None,
+        before: str = None
+        ) -> dict:
         """
-        Fetch information about a specific location from the Clash Royale API.
+        Fetch Path of Legends player rankings for a specific location from the Clash Royale API.
         
         Args:
-            location_id: The location identifier
+            location_id: The location identifier. To get a list of all locations and their ids, use the get_locations tool.
+            
+            limit: Limit the number of items returned in the response. (optional)
+            
+            after: Return only items that occur after this marker. Before marker can be found from the response, inside the 'paging' property.
+                Note that only after or before can be specified for a request, not both. (optional)
+            
+            before: Return only items that occur before this marker. Before marker can be found from the response, inside the 'paging' property.
+                Note that only after or before can be specified for a request, not both. (optional)
             
         Returns:
-            Information about the specified location including name, region, and other details.
+            Path of Legends player rankings for the specified location.
         """
-        endpoint = f"locations/{location_id}"
+        # Validate that only one of after or before is provided
+        if after is not None and before is not None:
+            raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
+            
+        endpoint = f"locations/{location_id}/pathoflegend/players"
         
-        return make_api_request(endpoint)
-
-    @mcp.tool()
-    def get_locations() -> dict:
-        """
-        Fetch all locations from the Clash Royale API.
+        # Create a dictionary with only the non-None parameters
+        queries = {k: v for k, v in {
+            "limit": limit,
+            "after": after,
+            "before": before
+        }.items() if v is not None}
         
-        Returns:
-            A list of all locations and their information including IDs, names, and region details.
-        """
-        endpoint = "locations"
-        
-        return make_api_request(endpoint)
-
-    @mcp.tool()
-    def get_seasons() -> dict:
-        """
-        Fetch all seasons and their ids from the Clash Royale API.
-        
-        Returns:
-            A list of all seasons and their identifiers.
-        """
-        endpoint = "locations/global/seasons"
+        if queries:
+            endpoint += "?" + build_query_string(queries)
         
         return make_api_request(endpoint)
     
@@ -291,7 +333,7 @@ def register_locations_tools(mcp):
         Fetch global tournament rankings for a specific tournament from the Clash Royale API.
         
         Args:
-            tournament_tag: The tournament tag to look up (e.g. #ABCDEF)
+            tournament_tag: The tournament identifer. To get a list of all tournaments and their tags, use the get_global_tournaments tool.
             
             limit: Limit the number of items returned in the response. (optional)
             
@@ -323,59 +365,3 @@ def register_locations_tools(mcp):
             endpoint += "?" + build_query_string(queries)
         
         return make_api_request(endpoint)
-    
-    @mcp.tool()
-    def get_location_path_of_legends_player_rankings(
-        location_id: int,
-        limit: int = None,
-        after: str = None,
-        before: str = None
-        ) -> dict:
-        """
-        Fetch Path of Legends player rankings for a specific location from the Clash Royale API.
-        
-        Args:
-            location_id: The location identifier
-            
-            limit: Limit the number of items returned in the response. (optional)
-            
-            after: Return only items that occur after this marker. Before marker can be found from the response, inside the 'paging' property.
-                Note that only after or before can be specified for a request, not both. (optional)
-            
-            before: Return only items that occur before this marker. Before marker can be found from the response, inside the 'paging' property.
-                Note that only after or before can be specified for a request, not both. (optional)
-            
-        Returns:
-            Path of Legends player rankings for the specified location.
-        """
-        # Validate that only one of after or before is provided
-        if after is not None and before is not None:
-            raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
-            
-        endpoint = f"locations/{location_id}/pathoflegend/players"
-        
-        # Create a dictionary with only the non-None parameters
-        queries = {k: v for k, v in {
-            "limit": limit,
-            "after": after,
-            "before": before
-        }.items() if v is not None}
-        
-        if queries:
-            endpoint += "?" + build_query_string(queries)
-        
-        return make_api_request(endpoint)
-    
-    '''
-    @mcp.tool()
-    def get_seasonsV2() -> dict:
-        """
-        Fetch all seasons from the Clash Royale API. This version provides more details beyond just the ids
-        
-        Returns:
-            A list of all locations and their information including IDs, names, and region details.
-        """
-        endpoint = "locations/global/seasonsV2"
-        
-        return make_api_request(endpoint)
-    '''
