@@ -1,5 +1,11 @@
 import os
 import requests
+from dotenv import load_dotenv
+
+# Try to load environment variables from .env file
+# This will silently fail if .env doesn't exist, which is what we want
+dotenvPath = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
+load_dotenv(dotenvPath)
 
 CR_API_BASE = "https://api.clashroyale.com/v1"
 CR_API_KEY = os.getenv("CR_API_KEY")
