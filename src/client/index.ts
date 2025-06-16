@@ -5,11 +5,12 @@ import {
 } from "@anthropic-ai/sdk/resources/messages/messages.mjs";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import readline from "readline/promises";
 
 import dotenv from "dotenv";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+
+
 
 dotenv.config(); // load environment variables from .env
 
@@ -87,10 +88,10 @@ class MCPClient {
 
         // Initial Claude API call
         const response = await this.anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 1000,
-        messages,
-        tools: this.tools,
+            model: "claude-3-5-sonnet-20241022",
+            max_tokens: 1000,
+            messages,
+            tools: this.tools,
         });
 
         // Process response and handle tool calls
@@ -152,7 +153,7 @@ class MCPClient {
             while (true) {
                 const message = await rl.question("\nQuery: ");
                 if (message.toLowerCase() === "quit") {
-                break;
+                    break;
                 }
                 const response = await this.processQuery(message);
                 console.log("\n" + response);
