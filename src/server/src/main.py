@@ -1,4 +1,5 @@
 from mcp.server import FastMCP
+
 from tools import (
     register_players_tools,
     register_clans_tools, 
@@ -10,8 +11,11 @@ from tools import (
     register_globaltournaments_tools
     )
 
-# Instantiate FastMCP server with explicit host and port
-mcp = FastMCP("Clash Royale", dependencies=["requests"],)
+mcp = FastMCP(
+    name="Clash Royale MCP Server",
+    host="127.0.0.1",
+    port=8000,
+)
 
 # Register all tools
 register_players_tools(mcp)
@@ -25,5 +29,4 @@ register_globaltournaments_tools(mcp)
 
 
 if __name__ == "__main__":
-    # Start the server explicitly with host and port
-    mcp.run()
+    mcp.run(transport="streamable-http")
