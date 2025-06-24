@@ -26,7 +26,7 @@ pids
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# Coverage directory
 coverage/
 *.lcov
 
@@ -57,7 +57,7 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# parcel-bundler cache (https://parceljs.org/)
+# parcel-bundler cache
 .cache
 .parcel-cache
 
@@ -66,14 +66,6 @@ jspm_packages/
 
 # Nuxt.js build / generate output
 .nuxt
-
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
 
 # Gatsby files
 .cache/
@@ -104,4 +96,16 @@ ehthumbs.db
 Thumbs.db
 
 # TypeScript
-*.tsbuildinfo 
+*.tsbuildinfo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md 
