@@ -5,10 +5,15 @@ import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { healthCheck } from './api/health';
-import { streamChat } from './api/chat';
+import { streamChat, setClaudeService } from './api/chat';
 import { logger } from './utils/logger';
+import { ClaudeService } from './services/claudeService';
 
 const app = express();
+
+// Initialize ClaudeService with MCP
+const claudeService = new ClaudeService();
+setClaudeService(claudeService);
 
 // CORS configuration (must come before helmet)
 app.use(cors({ 
@@ -89,10 +94,18 @@ process.on('SIGINT', () => {
 // Start server
 const PORT = config.server.port;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
   logger.info(`Environment: ${process.env['NODE_ENV'] || 'development'}`);
   logger.info(`Claude model: ${config.anthropic.modelName}`);
+  
+  // Initialize MCP connection
+  try {
+    await claudeService.connectToServer();
+    logger.info('MCP server connected successfully');
+  } catch (error) {
+    logger.warn('Failed to connect to MCP server, continuing without tools:', error);
+  }
 });
 
 export default app; 

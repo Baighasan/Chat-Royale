@@ -1,6 +1,104 @@
-# Chat Royale 👑⚔️
+# Chat Royale
 
-An intelligent chatbot powered by the Clash Royale API through the Model Context Protocol (MCP). Chat Royale enables natural language interactions with comprehensive Clash Royale game data, from player statistics to clan information and tournament rankings.
+A real-time chat application with Claude AI integration and MCP (Model Context Protocol) tools support.
+
+## Features
+
+- Real-time streaming chat with Claude AI
+- MCP (Model Context Protocol) tools integration
+- Modern React frontend with TypeScript
+- Express.js backend with streaming support
+- Tool execution with real-time feedback
+
+## MCP Tools Integration
+
+This application supports MCP tools that can be used by Claude during conversations. The tools are automatically available when an MCP server is running.
+
+### How it works
+
+1. **Tool Discovery**: The backend connects to an MCP server and discovers available tools
+2. **Streaming Tool Use**: When Claude decides to use a tool, it streams the tool call in real-time
+3. **Tool Execution**: The backend executes the tool via the MCP client
+4. **Result Streaming**: Tool results are streamed back to the frontend
+5. **Visual Feedback**: The frontend shows tool usage, execution, and results in real-time
+
+### Supported Events
+
+The streaming implementation supports the following events:
+
+- `content_delta`: Text content from Claude
+- `tool_use_start`: When Claude starts using a tool
+- `tool_input_delta`: Tool input parameters being built
+- `tool_execution_start`: When tool execution begins
+- `tool_result`: Tool execution results
+- `tool_error`: Tool execution errors
+- `message_stop`: End of Claude's response
+
+### Setting up MCP Tools
+
+1. Start your MCP server (e.g., on `http://127.0.0.1:8000/mcp`)
+2. The backend will automatically connect and discover available tools
+3. Tools will be available to Claude in conversations
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+- MCP server (optional, for tool functionality)
+
+### Backend Setup
+
+```bash
+cd src/backend
+npm install
+npm run dev
+```
+
+### Frontend Setup
+
+```bash
+cd src/frontend
+npm install
+npm run dev
+```
+
+### Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```env
+ANTHROPIC_API_KEY=your_anthropic_api_key
+NODE_ENV=development
+PORT=3001
+```
+
+## Architecture
+
+- **Frontend**: React + TypeScript + Vite
+- **Backend**: Express.js + TypeScript
+- **AI**: Anthropic Claude API with streaming
+- **Tools**: MCP (Model Context Protocol) integration
+- **Real-time**: Server-Sent Events (SSE) for streaming
+
+## API Endpoints
+
+- `POST /api/chat` - Streaming chat endpoint
+- `GET /api/health` - Health check endpoint
+
+## Tool Integration Flow
+
+1. User sends message
+2. Backend connects to MCP server (if not already connected)
+3. Claude receives message with available tools
+4. If Claude uses a tool:
+   - Tool use is streamed to frontend
+   - Tool input parameters are built incrementally
+   - Tool is executed via MCP client
+   - Results are streamed back
+5. Claude continues with final response
+6. Complete conversation is displayed to user
 
 ## 🌟 Features
 

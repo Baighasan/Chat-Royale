@@ -4,13 +4,13 @@ FROM node:18-alpine AS base
 WORKDIR /app
 
 # Copy backend package files
-COPY src/backend/package*.json ./
+COPY package*.json ./
 
 # Install backend dependencies
 RUN npm install
 
 # Copy backend source
-COPY src/backend/ ./
+COPY . ./
 
 # Build backend
 RUN npm run build

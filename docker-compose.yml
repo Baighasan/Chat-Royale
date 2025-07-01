@@ -1,8 +1,11 @@
 version: '3.8'
 
 services:
-  claude-chat-backend:
-    build: .
+  chat-royale-backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: chat-royale-backend
     ports:
       - "3001:3001"
     env_file:
@@ -10,9 +13,37 @@ services:
     environment:
       - PORT=3001
     restart: unless-stopped
+    depends_on:
+      clash-royale-mcp-server:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s 
+      start_period: 40s
+    networks:
+      - chatroyale-network
+
+  clash-royale-mcp-server:
+    build:
+      context: ./src/mcp
+      dockerfile: Dockerfile
+    container_name: clash-royale-mcp-server
+    ports:
+      - "8000:8000"
+    env_file:
+      - src/mcp/.env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/mcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - chatroyale-network
+
+networks:
+  chatroyale-network:
+    driver: bridge 

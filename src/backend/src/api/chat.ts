@@ -4,6 +4,13 @@ import { ClaudeService } from '../services/claudeService';
 import { logger } from '../utils/logger';
 import { createError } from '../middleware/errorHandler';
 
+// Shared ClaudeService instance
+let claudeService: ClaudeService | null = null;
+
+export const setClaudeService = (service: ClaudeService) => {
+  claudeService = service;
+};
+
 export const streamChat = async (
   req: Request,
   res: Response,
@@ -38,7 +45,9 @@ export const streamChat = async (
       'Connection': 'keep-alive',
     });
 
-    const claudeService = new ClaudeService();
+    if (!claudeService) {
+      throw createError('ClaudeService not initialized', 500);
+    }
     
     logger.info('Starting chat stream', {
       messageLength: message.length,

@@ -23,6 +23,22 @@ export interface ChatResponse {
   };
 }
 
+export interface ToolUse {
+  id: string;
+  name: string;
+  input: any;
+}
+
+export interface ToolResult {
+  toolId: string;
+  result: any;
+}
+
+export interface ToolError {
+  toolId: string;
+  error: string;
+}
+
 export interface ChatState {
   messages: Message[];
   isLoading: boolean;
