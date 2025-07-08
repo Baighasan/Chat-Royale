@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ChatRequest } from '../types';
+import { ChatRequest, ChatResponse } from '../types';
 import { ClaudeService } from '../services/claudeService';
 import { logger } from '../utils/logger';
 import { createError } from '../middleware/errorHandler';
@@ -11,7 +11,7 @@ export const setClaudeService = (service: ClaudeService) => {
   claudeService = service;
 };
 
-export const streamChat = async (
+export const processChat = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -38,27 +38,25 @@ export const streamChat = async (
       }
     }
 
-    // Set SSE headers with CORS support
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    });
-
     if (!claudeService) {
       throw createError('ClaudeService not initialized', 500);
     }
     
-    logger.info('Starting chat stream', {
+    logger.info('Starting chat processing', {
       messageLength: message.length,
       historyLength: history.length,
       userAgent: req.get('User-Agent'),
       ip: req.ip,
     });
 
-    await claudeService.streamChat({ message, history }, res);
+    const response: ChatResponse = await claudeService.processChat({ message, history });
 
-    logger.info('Chat stream completed');
+    logger.info('Chat processing completed', {
+      conversationId: response.conversationId,
+      contentLength: response.content.length,
+    });
+
+    res.json(response);
   } catch (error) {
     logger.error('Error in chat endpoint:', error);
     next(error);

@@ -1,4 +1,7 @@
+import logging
 from .utils import make_api_request, build_query_string, encode_tag
+
+logger = logging.getLogger(__name__)
 
 def register_tournaments_tools(mcp):
     """
@@ -35,8 +38,11 @@ def register_tournaments_tools(mcp):
         Returns:
             Returns the tournament search results as a JSON object.
         """
+        logger.info(f"search_tournaments called with name={name}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         endpoint = "tournaments"
@@ -52,9 +58,12 @@ def register_tournaments_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         else:
+            logger.error("No search parameters provided")
             raise ValueError("At least one search parameter must be provided.")
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"search_tournaments completed successfully. Found {len(result)} tournaments")
+        return result
     
     @mcp.tool()
     def get_tournament_info(tournament_tag: str) -> dict:
@@ -69,8 +78,12 @@ def register_tournaments_tools(mcp):
         Returns:
             Detailed information about the specified tournament.
         """
+        logger.info(f"get_tournament_info called with tournament_tag={tournament_tag}")
+        
         tournament_tag = encode_tag(tournament_tag)
         endpoint = f"tournaments/{tournament_tag}"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_tournament_info completed successfully for tournament: {result.get('name', 'Unknown')}")
+        return result
 

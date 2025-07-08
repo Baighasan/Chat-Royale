@@ -10,12 +10,24 @@ export interface ChatRequest {
 
 export interface ChatResponse {
   conversationId: string;
-  delta?: string;
-  reason?: string;
+  content: string;
   usage?: {
     input_tokens: number;
     output_tokens: number;
   };
+  // Tool details are hidden from user responses
+}
+
+export interface ToolResult {
+  toolId: string;
+  toolName: string;
+  result: any;
+}
+
+export interface ToolError {
+  toolId: string;
+  toolName: string;
+  error: string;
 }
 
 export interface HealthResponse {

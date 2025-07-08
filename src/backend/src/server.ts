@@ -5,7 +5,7 @@ import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { healthCheck } from './api/health';
-import { streamChat, setClaudeService } from './api/chat';
+import { processChat, setClaudeService } from './api/chat';
 import { logger } from './utils/logger';
 import { ClaudeService } from './services/claudeService';
 
@@ -65,8 +65,8 @@ app.use((req, _res, next) => {
 // Health check endpoint
 app.get('/api/health', healthCheck);
 
-// Chat streaming endpoint
-app.post('/api/chat', streamChat);
+// Chat processing endpoint
+app.post('/api/chat', processChat);
 
 // 404 handler
 app.use('*', (_req, res) => {

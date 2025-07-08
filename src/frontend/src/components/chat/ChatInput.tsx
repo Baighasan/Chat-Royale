@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
-import { streamChat } from '../../services/chatService';
 import { Message } from '../../types';
 
 export const ChatInput: React.FC = () => {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { messages, isLoading, addMessage, streamAssistantMessage, setLoading, setError } = useChatStore();
+  const { messages, isLoading, addMessage, processChat, setError } = useChatStore();
 
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
@@ -32,7 +31,6 @@ export const ChatInput: React.FC = () => {
 
     addMessage(userMessage);
     setInput('');
-    setLoading(true);
     setError(null);
 
     try {
@@ -41,19 +39,13 @@ export const ChatInput: React.FC = () => {
         content: msg.content,
       }));
 
-      const stream = await streamChat({
+      await processChat({
         message: userMessage.content,
         history,
       });
-
-      if (stream) {
-        await streamAssistantMessage(stream);
-      }
     } catch (error) {
       console.error('Error sending message:', error);
       setError('Failed to send message. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -1,6 +1,14 @@
 import os
 import requests
+import logging
 from dotenv import load_dotenv
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Try to load environment variables from .env file
 # This will silently fail if .env doesn't exist, which is what we want
@@ -26,6 +34,8 @@ def make_api_request(endpoint: str) -> dict:
         JSON response from the API
     """
     url = f"{CR_API_BASE}/{endpoint}"
+    
+    logger.info(f"Making API request to: {url}")
         
     headers = {
         "Authorization": f"Bearer {CR_API_KEY}"
@@ -34,8 +44,10 @@ def make_api_request(endpoint: str) -> dict:
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
+        logger.info(f"API request successful. Response status: {response.status_code}")
         return response.json()
     else:
+        logger.error(f"API request failed. Status: {response.status_code}, Response: {response.text}")
         raise Exception(f"Error fetching data: {response.status_code} - {response.text}")
 
 

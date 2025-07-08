@@ -1,4 +1,7 @@
+import logging
 from .utils import make_api_request, build_query_string
+
+logger = logging.getLogger(__name__)
 
 def register_leaderboards_tools(mcp):
     """
@@ -33,8 +36,11 @@ def register_leaderboards_tools(mcp):
         Returns:
             Specific leaderboard information.
         """
+        logger.info(f"get_specific_leaderboard called with leaderboard_id={leaderboard_id}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         endpoint = f"leaderboards/{leaderboard_id}"
@@ -49,7 +55,9 @@ def register_leaderboards_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_specific_leaderboard completed successfully. Found {len(result)} entries")
+        return result
     
     @mcp.tool()
     def get_leaderboards() -> dict:
@@ -59,5 +67,9 @@ def register_leaderboards_tools(mcp):
         Returns:
             A list of all available leaderboards.
         """
+        logger.info("get_leaderboards called")
+        
         endpoint = "leaderboards"
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_leaderboards completed successfully. Retrieved {len(result)} leaderboards")
+        return result

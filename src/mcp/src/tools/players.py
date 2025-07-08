@@ -1,4 +1,7 @@
+import logging
 from .utils import make_api_request, encode_tag
+
+logger = logging.getLogger(__name__)
 
 def register_players_tools(mcp):
     """
@@ -47,10 +50,14 @@ def register_players_tools(mcp):
                     "badgeId": 33333
             },
         """
+        logger.info(f"get_player_info called with player_tag: {player_tag}")
+        
         player_tag = encode_tag(player_tag)
         endpoint = f"players/{player_tag}"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_player_info completed successfully for player: {result.get('name', 'Unknown')}")
+        return result
 
     @mcp.tool()
     def get_player_upcoming_chests(player_tag: str) -> dict:
@@ -86,10 +93,14 @@ def register_players_tools(mcp):
                 ]
             }
         """
+        logger.info(f"get_player_upcoming_chests called with player_tag: {player_tag}")
+        
         player_tag = encode_tag(player_tag)
         endpoint = f"players/{player_tag}/upcomingchests"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_player_upcoming_chests completed successfully. Found {len(result.get('items', []))} upcoming chests")
+        return result
 
     @mcp.tool()
     def get_player_battle_log(player_tag: str) -> dict:
@@ -104,7 +115,11 @@ def register_players_tools(mcp):
             Battle log information including the battle details. Details returned include the gamemode, details about the
             cards in each player's deck and the outcome.
         """
+        logger.info(f"get_player_battle_log called with player_tag: {player_tag}")
+        
         player_tag = encode_tag(player_tag)
         endpoint = f"players/{player_tag}/battlelog"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_player_battle_log completed successfully. Found {len(result)} battles")
+        return result

@@ -1,4 +1,7 @@
+import logging
 from .utils import make_api_request, build_query_string, encode_tag
+
+logger = logging.getLogger(__name__)
 
 def register_locations_tools(mcp):
     """
@@ -16,9 +19,13 @@ def register_locations_tools(mcp):
         Returns:
             A list of all locations and their information including IDs, names, and region details.
         """
+        logger.info("get_locations called")
+        
         endpoint = "locations"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_locations completed successfully. Retrieved {len(result)} locations")
+        return result
 
     @mcp.tool()
     def get_seasons() -> dict:
@@ -28,9 +35,13 @@ def register_locations_tools(mcp):
         Returns:
             A list of all seasons and their identifiers.
         """
+        logger.info("get_seasons called")
+        
         endpoint = "locations/global/seasonsV2"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_seasons completed successfully. Retrieved {len(result)} seasons")
+        return result
     
     @mcp.tool()
     def get_location_info(location_id: int) -> dict:
@@ -43,9 +54,13 @@ def register_locations_tools(mcp):
         Returns:
             Information about the specified location including name, region, and other details.
         """
+        logger.info(f"get_location_info called with location_id={location_id}")
+        
         endpoint = f"locations/{location_id}"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_location_info completed successfully for location: {result.get('name', 'Unknown')}")
+        return result
     
     @mcp.tool()
     def get_location_clan_rankings(
@@ -71,8 +86,11 @@ def register_locations_tools(mcp):
         Returns:
             Clan rankings for the specified location.
         """
+        logger.info(f"get_location_clan_rankings called with location_id={location_id}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         endpoint = f"locations/{location_id}/rankings/clans"
@@ -87,7 +105,9 @@ def register_locations_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_location_clan_rankings completed successfully. Found {len(result)} clan rankings")
+        return result
     
     @mcp.tool()
     def get_location_player_rankings(
@@ -113,8 +133,11 @@ def register_locations_tools(mcp):
         Returns:
             Player rankings for the specified location.
         """
+        logger.info(f"get_location_player_rankings called with location_id={location_id}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         endpoint = f"locations/{location_id}/rankings/players"
@@ -129,7 +152,9 @@ def register_locations_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_location_player_rankings completed successfully. Found {len(result)} player rankings")
+        return result
     
     @mcp.tool()
     def get_location_clan_war_rankings(
@@ -155,8 +180,11 @@ def register_locations_tools(mcp):
         Returns:
             Clan war rankings for the specified location.
         """
+        logger.info(f"get_location_clan_war_rankings called with location_id={location_id}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         endpoint = f"locations/{location_id}/rankings/clanwars"
@@ -171,7 +199,9 @@ def register_locations_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_location_clan_war_rankings completed successfully. Found {len(result)} clan war rankings")
+        return result
     
     @mcp.tool()
     def get_top_path_of_legends_players_rankings(
@@ -197,8 +227,11 @@ def register_locations_tools(mcp):
         Returns:
             Path of Legends player rankings for the specified season.
         """
+        logger.info(f"get_top_path_of_legends_players_rankings called with season_id={season_id}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         # Encode the season_id
@@ -215,7 +248,9 @@ def register_locations_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_top_path_of_legends_players_rankings completed successfully. Found {len(result)} player rankings")
+        return result
     
     @mcp.tool()
     def get_top_player_league_season(
@@ -230,11 +265,15 @@ def register_locations_tools(mcp):
         Returns:
             Season player rankings for the specified season.
         """
+        logger.info(f"get_top_player_league_season called with season_id={season_id}")
+        
         # Encode the season_id
         encoded_season_id = encode_tag(season_id)
         endpoint = f"locations/global/seasons/{encoded_season_id}"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_top_player_league_season completed successfully")
+        return result
     
     @mcp.tool()
     def get_season_top_player_rankings(
@@ -260,8 +299,11 @@ def register_locations_tools(mcp):
         Returns:
             Top player rankings for the specified season.
         """
+        logger.info(f"get_season_top_player_rankings called with season_id={season_id}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         # Encode the season_id
@@ -278,7 +320,9 @@ def register_locations_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_season_top_player_rankings completed successfully. Found {len(result)} player rankings")
+        return result
     
     @mcp.tool()
     def get_location_path_of_legends_player_rankings(
@@ -304,8 +348,11 @@ def register_locations_tools(mcp):
         Returns:
             Path of Legends player rankings for the specified location.
         """
+        logger.info(f"get_location_path_of_legends_player_rankings called with location_id={location_id}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         endpoint = f"locations/{location_id}/pathoflegend/players"
@@ -320,7 +367,9 @@ def register_locations_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_location_path_of_legends_player_rankings completed successfully. Found {len(result)} player rankings")
+        return result
     
     @mcp.tool()
     def get_global_tournament_rankings(
@@ -333,7 +382,7 @@ def register_locations_tools(mcp):
         Fetch global tournament rankings for a specific tournament from the Clash Royale API.
         
         Args:
-            tournament_tag: The tournament identifer. To get a list of all tournaments and their tags, use the get_global_tournaments tool.
+            tournament_tag: The tournament identifer. To get a list of all tournaments and their ids, use the get_global_tournaments tool.
             
             limit: Limit the number of items returned in the response. (optional)
             
@@ -346,8 +395,11 @@ def register_locations_tools(mcp):
         Returns:
             Global tournament rankings for the specified tournament.
         """
+        logger.info(f"get_global_tournament_rankings called with tournament_tag={tournament_tag}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         # Encode the tournament_tag
@@ -364,4 +416,6 @@ def register_locations_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_global_tournament_rankings completed successfully. Found {len(result)} tournament rankings")
+        return result

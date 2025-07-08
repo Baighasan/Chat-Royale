@@ -1,4 +1,7 @@
+import logging
 from .utils import make_api_request, encode_tag, build_query_string
+
+logger = logging.getLogger(__name__)
 
 def register_clans_tools(mcp):
     """
@@ -94,8 +97,11 @@ def register_clans_tools(mcp):
         Returns:
             Returns the search results as a JSON object.
         """
+        logger.info(f"search_clans called with name={name}, location_id={location_id}, min_members={min_members}, max_members={max_members}, min_score={min_score}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         endpoint = "clans"
@@ -115,9 +121,12 @@ def register_clans_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         else:
+            logger.error("No search parameters provided")
             raise ValueError("At least one search parameter must be provided.")
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"search_clans completed successfully. Found {len(result)} clans")
+        return result
 
     @mcp.tool()
     def get_clan_river_race_log(
@@ -144,8 +153,11 @@ def register_clans_tools(mcp):
         Returns:
             Clan river race log containing past river race data.
         """
+        logger.info(f"get_clan_river_race_log called with clan_tag={clan_tag}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         clan_tag = encode_tag(clan_tag)
@@ -161,7 +173,9 @@ def register_clans_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_clan_river_race_log completed successfully. Found {len(result)} river race entries")
+        return result
 
     # NOTE: This API endpoint has been permanently removed.
     '''
@@ -194,10 +208,14 @@ def register_clans_tools(mcp):
         Returns:
             Detailed information about the specified clan including members, war stats, etc.
         """
+        logger.info(f"get_clan_info called with clan_tag={clan_tag}")
+        
         clan_tag = encode_tag(clan_tag)
         endpoint = f"clans/{clan_tag}"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_clan_info completed successfully for clan: {result.get('name', 'Unknown')}")
+        return result
 
     @mcp.tool()
     def get_clan_members(
@@ -224,8 +242,11 @@ def register_clans_tools(mcp):
         Returns:
             List of clan members with their details including name, role, trophies, donations, etc.
         """
+        logger.info(f"get_clan_members called with clan_tag={clan_tag}, limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         clan_tag = encode_tag(clan_tag)
@@ -241,7 +262,9 @@ def register_clans_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_clan_members completed successfully. Found {len(result)} members")
+        return result
 
     @mcp.tool()
     def get_clan_current_river_race(clan_tag: str) -> dict:
@@ -256,7 +279,11 @@ def register_clans_tools(mcp):
             Current river race information for the specified clan including participating clans,
             battle days, clan participants, and other river race details.
         """
+        logger.info(f"get_clan_current_river_race called with clan_tag={clan_tag}")
+        
         clan_tag = encode_tag(clan_tag)
         endpoint = f"clans/{clan_tag}/currentriverrace"
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_clan_current_river_race completed successfully")
+        return result

@@ -1,4 +1,7 @@
+import logging
 from .utils import make_api_request, build_query_string
+
+logger = logging.getLogger(__name__)
 
 def register_cards_tools(mcp):
     """
@@ -43,8 +46,11 @@ def register_cards_tools(mcp):
                 "rarity": "common",
             },
         """
+        logger.info(f"get_cards called with limit={limit}, after={after}, before={before}")
+        
         # Validate that only one of after or before is provided
         if after is not None and before is not None:
+            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
             raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
             
         endpoint = "cards"
@@ -59,4 +65,6 @@ def register_cards_tools(mcp):
         if queries:
             endpoint += "?" + build_query_string(queries)
         
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_cards completed successfully. Retrieved {len(result)} cards")
+        return result

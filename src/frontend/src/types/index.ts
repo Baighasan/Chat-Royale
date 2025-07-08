@@ -15,12 +15,12 @@ export interface ChatRequest {
 
 export interface ChatResponse {
   conversationId: string;
-  delta?: string;
-  reason?: string;
+  content: string;
   usage?: {
     input_tokens: number;
     output_tokens: number;
   };
+  // Tool details are hidden from user responses
 }
 
 export interface ToolUse {
@@ -31,11 +31,13 @@ export interface ToolUse {
 
 export interface ToolResult {
   toolId: string;
+  toolName: string;
   result: any;
 }
 
 export interface ToolError {
   toolId: string;
+  toolName: string;
   error: string;
 }
 
@@ -44,7 +46,7 @@ export interface ChatState {
   isLoading: boolean;
   error: string | null;
   addMessage: (message: Message) => void;
-  streamAssistantMessage: (stream: ReadableStream) => Promise<void>;
+  processChat: (request: ChatRequest) => Promise<void>;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearMessages: () => void;

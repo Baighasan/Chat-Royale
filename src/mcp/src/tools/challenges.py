@@ -1,4 +1,7 @@
+import logging
 from .utils import make_api_request, build_query_string
+
+logger = logging.getLogger(__name__)
 
 def register_challenges_tools(mcp):
     """
@@ -16,5 +19,9 @@ def register_challenges_tools(mcp):
         Returns:
             Returns the challenge information as a JSON object.
         """
+        logger.info("get_challenge_info called")
+        
         endpoint = "challenges"
-        return make_api_request(endpoint)
+        result = make_api_request(endpoint)
+        logger.info(f"get_challenge_info completed successfully. Retrieved challenge information")
+        return result
