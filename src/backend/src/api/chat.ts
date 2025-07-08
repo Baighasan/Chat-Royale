@@ -1,14 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { ChatRequest, ChatResponse } from '../types';
-import { ClaudeService } from '../services/claudeService';
 import { logger } from '../utils/logger';
 import { createError } from '../middleware/errorHandler';
 
-// Shared ClaudeService instance
-let claudeService: ClaudeService | null = null;
+// Shared AIService instance (OpenAIService)
+type AIService = {
+  processChat: (payload: ChatRequest) => Promise<ChatResponse>;
+  healthCheck: () => Promise<boolean>;
+};
+let aiService: AIService | null = null;
 
-export const setClaudeService = (service: ClaudeService) => {
-  claudeService = service;
+export const setAIService = (service: AIService) => {
+  aiService = service;
 };
 
 export const processChat = async (
@@ -38,24 +41,20 @@ export const processChat = async (
       }
     }
 
-    if (!claudeService) {
-      throw createError('ClaudeService not initialized', 500);
+    if (!aiService) {
+      throw createError('AIService not initialized', 500);
     }
-    
     logger.info('Starting chat processing', {
       messageLength: message.length,
       historyLength: history.length,
       userAgent: req.get('User-Agent'),
       ip: req.ip,
     });
-
-    const response: ChatResponse = await claudeService.processChat({ message, history });
-
+    const response: ChatResponse = await aiService.processChat({ message, history });
     logger.info('Chat processing completed', {
       conversationId: response.conversationId,
       contentLength: response.content.length,
     });
-
     res.json(response);
   } catch (error) {
     logger.error('Error in chat endpoint:', error);

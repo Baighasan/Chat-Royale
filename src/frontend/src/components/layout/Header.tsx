@@ -8,7 +8,7 @@ export const Header: React.FC = () => {
         <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
           <Bot className="w-5 h-5 text-background-primary" />
         </div>
-        <h1 className="text-lg font-semibold text-text-primary">Claude Chat</h1>
+        <h1 className="text-lg font-semibold text-text-primary">AI Chat</h1>
       </div>
     </header>
   );

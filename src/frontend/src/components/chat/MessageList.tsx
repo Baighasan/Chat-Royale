@@ -16,7 +16,7 @@ export const MessageList: React.FC = () => {
       {messages.length === 0 && (
         <div className="flex items-center justify-center h-full text-text-secondary">
           <div className="text-center">
-            <h2 className="text-xl font-semibold mb-2">Welcome to Claude Chat</h2>
+            <h2 className="text-xl font-semibold mb-2">Welcome to AI Chat</h2>
             <p className="text-sm">Start a conversation by typing a message below.</p>
           </div>
         </div>

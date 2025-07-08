@@ -1,19 +1,30 @@
 import { Request, Response } from 'express';
 import { HealthResponse } from '../types';
-import { ClaudeService } from '../services/claudeService';
 import { logger } from '../utils/logger';
+
+// Import the shared service instance
+let aiService: any = null;
+
+export const setAIService = (service: any) => {
+  aiService = service;
+};
 
 export const healthCheck = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const claudeService = new ClaudeService();
-    const claudeHealthy = await claudeService.healthCheck();
+    let aiHealthy = false;
+    
+    if (aiService) {
+      aiHealthy = await aiService.healthCheck();
+    } else {
+      logger.warn('AIService not initialized for health check');
+    }
 
     const response: HealthResponse = {
-      status: claudeHealthy ? 'ok' : 'degraded',
+      status: aiHealthy ? 'ok' : 'degraded',
       timestamp: new Date().toISOString(),
     };
 
-    const statusCode = claudeHealthy ? 200 : 503;
+    const statusCode = aiHealthy ? 200 : 503;
     res.status(statusCode).json(response);
 
     logger.info(`Health check: ${response.status}`);

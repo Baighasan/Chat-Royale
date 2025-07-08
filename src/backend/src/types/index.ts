@@ -1,5 +1,5 @@
 export interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
@@ -12,8 +12,9 @@ export interface ChatResponse {
   conversationId: string;
   content: string;
   usage?: {
-    input_tokens: number;
-    output_tokens: number;
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
   };
   // Tool details are hidden from user responses
 }

@@ -1,27 +1,22 @@
 {
-  "name": "claude-chat-interface",
+  "name": "ai-chat-interface",
   "version": "1.0.0",
-  "description": "A ChatGPT-style interface for Claude AI",
-  "private": true,
-  "workspaces": [
-    "src/frontend",
-    "src/backend"
-  ],
+  "description": "A ChatGPT-style interface for OpenAI AI",
+  "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:frontend": "npm run dev --workspace=frontend",
-    "dev:backend": "npm run dev --workspace=backend",
-    "build": "npm run build --workspaces",
-    "build:frontend": "npm run build --workspace=frontend",
-    "build:backend": "npm run build --workspace=backend",
-    "start": "npm run start --workspace=backend",
-    "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend"
+    "dev:backend": "cd src/backend && npm run dev",
+    "dev:frontend": "cd src/frontend && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd src/backend && npm run build",
+    "build:frontend": "cd src/frontend && npm run build",
+    "start": "cd src/backend && npm start",
+    "install:all": "npm install && cd src/backend && npm install && cd ../frontend && npm install"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=18.0.0"
   }
 } 

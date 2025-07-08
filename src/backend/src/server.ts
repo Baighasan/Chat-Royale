@@ -4,16 +4,17 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
-import { healthCheck } from './api/health';
-import { processChat, setClaudeService } from './api/chat';
+import { healthCheck, setAIService } from './api/health';
+import { processChat, setAIService as setChatAIService } from './api/chat';
+import { OpenAIService } from './services/openaiService';
 import { logger } from './utils/logger';
-import { ClaudeService } from './services/claudeService';
 
 const app = express();
 
-// Initialize ClaudeService with MCP
-const claudeService = new ClaudeService();
-setClaudeService(claudeService);
+// Initialize OpenAIService with MCP
+const openaiService = new OpenAIService();
+setChatAIService(openaiService);
+setAIService(openaiService);
 
 // CORS configuration (must come before helmet)
 app.use(cors({ 
@@ -97,11 +98,10 @@ const PORT = config.server.port;
 app.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
   logger.info(`Environment: ${process.env['NODE_ENV'] || 'development'}`);
-  logger.info(`Claude model: ${config.anthropic.modelName}`);
-  
+  logger.info(`OpenAI model: ${config.openai.modelName}`);
   // Initialize MCP connection
   try {
-    await claudeService.connectToServer();
+    await openaiService.connectToServer();
     logger.info('MCP server connected successfully');
   } catch (error) {
     logger.warn('Failed to connect to MCP server, continuing without tools:', error);
