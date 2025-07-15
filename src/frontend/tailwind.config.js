@@ -10,6 +10,7 @@ export default {
         background: {
           primary: '#31486e',
           secondary: '#262626',
+          header: '#4e6aa3', // lighter blue for header
         },
         text: {
           primary: '#f5f5f5',

@@ -25,7 +25,7 @@ export const ChatInput: React.FC = () => {
     const userMessage: Message = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       role: 'user',
-      name: 'Goblin',
+      name: 'You',
       content: input.trim(),
       timestamp: new Date(),
     };
@@ -58,33 +58,30 @@ export const ChatInput: React.FC = () => {
   };
 
   return (
-    <div className="border-t border-border bg-background-primary p-4">
-      <div className="flex items-end gap-3 max-w-4xl mx-auto">
-        <div className="flex-1 relative">
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            disabled={isLoading}
-            className="w-full resize-none rounded-lg border border-border bg-background-secondary text-text-primary placeholder-text-secondary p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent disabled:opacity-50"
-            rows={1}
-            style={{ minHeight: '44px', maxHeight: '200px' }}
-          />
+    <div className="fixed bottom-0 left-0 w-full z-20 flex justify-center pointer-events-none">
+      <div className="border border-border p-4 rounded-xl shadow-xl max-w-5xl w-full m-4 pointer-events-auto" style={{ backgroundColor: '#42537a' }}>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 relative">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message..."
+              disabled={isLoading}
+              className="w-full resize-none rounded-lg border border-border bg-background-secondary text-text-primary placeholder-text-secondary px-3 py-0 pr-12 focus:outline-none focus:ring-2 focus:ring-accent focus-border-transparent disabled:opacity-50 h-12 text-sm leading-[48px]"
+              rows={1}
+              style={{ minHeight: '48px', maxHeight: '200px' }}
+            />
+          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={!input.trim() || isLoading}
+            className="flex-shrink-0 w-12 h-12 rounded-lg bg-accent hover:bg-accent/80 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200 text-sm"
+          >
+            <Send className="w-5 h-5 text-background-primary" />
+          </button>
         </div>
-        
-        <button
-          onClick={handleSubmit}
-          disabled={!input.trim() || isLoading}
-          className="flex-shrink-0 w-10 h-10 rounded-lg bg-accent hover:bg-accent/80 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
-        >
-          <Send className="w-5 h-5 text-background-primary" />
-        </button>
-      </div>
-      
-      <div className="text-xs text-text-secondary mt-2 text-center">
-        Press Enter to send, Shift+Enter for new line
       </div>
     </div>
   );

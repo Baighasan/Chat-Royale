@@ -11,24 +11,24 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
   const isUser = message.role === 'user';
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} px-12 py-2`}>
-      <div className={`relative max-w-[40%] ${isUser ? '' : ''}`} style={{ marginLeft: isUser ? '5px' : '0', marginRight: isUser ? '0' : '5px' }}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} px-4 sm:px-12 py-2 mb-4`}>
+      <div className={`relative`} style={{ width: '100%', maxWidth: 600, marginLeft: isUser ? '5px' : '0', marginRight: isUser ? '0' : '5px' }}>
         {/* Speech bubble shape */}
         <div
-          className={`rounded-[22px] shadow-md px-4 py-3 bg-[#eef7ff]`}
+          className={`rounded-[22px] shadow-md px-4 sm:px-6 py-3 sm:py-4 bg-[#eef7ff]`}
           style={{
-            borderTopLeftRadius: isUser ? 22 : 0,
-            borderTopRightRadius: isUser ? 0 : 22,
-            borderBottomLeftRadius: 22,
-            borderBottomRightRadius: 22,
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            borderBottomLeftRadius: 12,
+            borderBottomRightRadius: 12,
             boxShadow: '0 4px 0 #2a3c5a',
           }}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span className="font-bold" style={{ color: '#009cff', fontSize: 16, letterSpacing: 1 }}>{message.name}</span>
-            <span className="ml-2 text-xs font-semibold" style={{ color: '#bfc9d8', fontSize: 12 }}>{message.role === 'assistant' ? 'Elder' : 'Elder'}</span>
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-bold text-base sm:text-base md:text-lg" style={{ color: '#009cff', letterSpacing: 1 }}>{message.name}</span>
+            <span className="ml-2 text-xs sm:text-sm font-semibold" style={{ color: '#bfc9d8' }}>{message.role === 'assistant' ? 'Elder' : 'Member'}</span>
           </div>
-          <div className="mb-2" style={{ color: '#586270', fontSize: 14, fontWeight: 600, wordBreak: 'break-word' }}>
+          <div className="mb-2 text-sm sm:text-base md:text-lg" style={{ color: '#586270', fontWeight: 600, wordBreak: 'break-word' }}>
             <ReactMarkdown
               components={{
                 code: ({ node, className, children, ...props }) => {
@@ -38,7 +38,7 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
                       {String(children).replace(/\n$/, '')}
                     </CodeBlock>
                   ) : (
-                    <code className="bg-background-primary px-1 py-0.5 rounded text-sm font-mono" {...props}>
+                    <code className="bg-background-primary px-1 py-0.5 rounded text-sm sm:text-base font-mono" {...props}>
                       {children}
                     </code>
                   );
@@ -46,10 +46,10 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
                 p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                 ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
                 ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-                li: ({ children }) => <li className="text-sm">{children}</li>,
-                h1: ({ children }) => <h1 className="text-xl font-semibold mb-2">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-lg font-semibold mb-2">{children}</h2>,
-                h3: ({ children }) => <h3 className="text-base font-semibold mb-2">{children}</h3>,
+                li: ({ children }) => <li className="text-sm sm:text-base md:text-lg">{children}</li>,
+                h1: ({ children }) => <h1 className="text-lg sm:text-xl font-semibold mb-2">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-base sm:text-lg font-semibold mb-2">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-sm sm:text-base font-semibold mb-2">{children}</h3>,
                 blockquote: ({ children }) => (
                   <blockquote className="border-l-4 border-accent pl-4 italic text-text-secondary">
                     {children}
@@ -60,7 +60,7 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
               {message.content}
             </ReactMarkdown>
           </div>
-          <div className="text-xs font-semibold" style={{ color: '#bfc9d8', fontSize: 11 }}>
+          <div className="text-xs sm:text-sm font-semibold" style={{ color: '#bfc9d8' }}>
             {/* Example: 1h 20min ago */}
             {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
