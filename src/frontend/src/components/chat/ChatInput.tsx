@@ -25,6 +25,7 @@ export const ChatInput: React.FC = () => {
     const userMessage: Message = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       role: 'user',
+      name: 'Goblin',
       content: input.trim(),
       timestamp: new Date(),
     };

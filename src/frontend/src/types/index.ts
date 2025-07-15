@@ -1,6 +1,7 @@
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
+  name: string; // Added for sender name
   content: string;
   timestamp: Date;
 }

@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         background: {
-          primary: '#171717',
+          primary: '#31486e',
           secondary: '#262626',
         },
         text: {
@@ -21,7 +21,7 @@ export default {
         user: '#0284c7',
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['Supercell Magic', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         mono: ['Fira Code', 'JetBrains Mono', 'monospace'],
       },
     },

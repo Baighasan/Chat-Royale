@@ -23,6 +23,7 @@ export const useChatStore = create<ChatState>((set) => ({
       const assistantMessage: Message = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         role: 'assistant',
+        name: 'Blue King',
         content: response.content,
         timestamp: new Date(),
       };
