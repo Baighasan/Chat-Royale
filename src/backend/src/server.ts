@@ -17,8 +17,8 @@ setChatAIService(openaiService);
 setAIService(openaiService);
 
 // CORS configuration (must come before helmet)
-app.use(cors({ 
-  origin: "http://localhost:5173",
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost"],
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: [

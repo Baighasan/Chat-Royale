@@ -1,0 +1,27 @@
+# Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+.env
+.venv
+venv
+env
+
+# OS/Editor files
+.DS_Store
+Thumbs.db
+
+# Git and lock files
+.git
+.gitignore
+
+# IDE files
+.vscode
+.idea
+
+# Build artifacts
+*.egg-info
+dist
+build

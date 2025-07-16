@@ -42,6 +42,22 @@ services:
     networks:
       - chatroyale-network
 
+  chat-royale-frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: chat-royale-frontend
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - chatroyale-network
+
 networks:
   chatroyale-network:
     driver: bridge 
