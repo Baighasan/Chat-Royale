@@ -5,6 +5,7 @@ import { logger } from '../utils/logger';
 import { createError } from '../middleware/errorHandler';
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { encoding_for_model } from "tiktoken";
 
 export class OpenAIService {
   private openai: OpenAI;
@@ -30,7 +31,10 @@ export class OpenAIService {
 
   public async processChat(payload: ChatRequest): Promise<ChatResponse> {
     const conversationId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+    const MODEL_CONTEXT_WINDOW = 128000; // gpt-4o-mini context window
+    const RESPONSE_BUFFER = 4096; // Reserve for completion
+    const modelName = config.openai.modelName || 'gpt-4o-mini';
+    const enc = encoding_for_model(modelName);
     try {
       logger.info('Starting chat processing', {
         conversationId,
@@ -38,12 +42,53 @@ export class OpenAIService {
         historyLength: payload.history.length,
       });
 
-      const messages = payload.history.concat([
+      // Prepare system prompt
+      const systemPrompt = {
+        role: 'system' as const,
+        content: `You are an AI assistant specialized in Clash Royale with access to comprehensive game data through the official Clash Royale API. You are knowledgeable, helpful, and engaging when discussing all aspects of Clash Royale.`
+      };
+
+      // Prepare all messages (history + current user message)
+      const allMessages = payload.history.concat([
         {
           role: 'user',
           content: payload.message
         }
       ]);
+
+      // Token counting utility for OpenAI chat messages
+      function countMessageTokens(msg: { role: string, content: string }) {
+        // OpenAI chat format: <|start|>{role}\n{content}<|end|>
+        // tiktoken chat encoding is slightly more complex, but this is a good approximation
+        return enc.encode(msg.role + "\n" + msg.content).length + 4; // +4 for role/format overhead
+      }
+      // Count system prompt tokens
+      let totalTokens = countMessageTokens(systemPrompt);
+      // Always include the latest user message
+      totalTokens += countMessageTokens({ role: 'user', content: payload.message });
+      // Add history messages in reverse (most recent first) until context window is reached
+      const limitedHistory: typeof payload.history = [];
+      for (let i = payload.history.length - 1; i >= 0; i--) {
+        const msg = payload.history[i];
+        const msgTokens = countMessageTokens(msg);
+        if (totalTokens + msgTokens + RESPONSE_BUFFER > MODEL_CONTEXT_WINDOW) {
+          break;
+        }
+        limitedHistory.unshift(msg); // Add to start
+        totalTokens += msgTokens;
+      }
+      // Compose messages for OpenAI
+      const messages = [
+        systemPrompt,
+        ...limitedHistory.map((msg) => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content,
+        })),
+        {
+          role: 'user',
+          content: payload.message
+        }
+      ];
 
       // Ensure we have tools available
       if (this.tools.length === 0) {
@@ -67,22 +112,10 @@ export class OpenAIService {
         });
       }
 
-      // Prepare OpenAI messages with system prompt
-      const openaiMessages = [
-        {
-          role: 'system' as const,
-          content: `You are an AI assistant specialized in Clash Royale with access to comprehensive game data through the official Clash Royale API. You are knowledgeable, helpful, and engaging when discussing all aspects of Clash Royale.`
-        },
-        ...messages.map((msg) => ({
-          role: msg.role as 'user' | 'assistant',
-          content: msg.content,
-        }))
-      ];
-
       let finalContent = '';
       const toolResults: ToolResult[] = [];
       const toolErrors: ToolError[] = [];
-      let conversationMessages = [...openaiMessages];
+      let conversationMessages = [...messages];
       let iterationCount = 0;
       const maxIterations = 10; // Prevent infinite loops
       let lastResponse: any = null;
