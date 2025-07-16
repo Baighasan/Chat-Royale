@@ -17,8 +17,12 @@ setChatAIService(openaiService);
 setAIService(openaiService);
 
 // CORS configuration (must come before helmet)
+const corsOrigins = process.env['NODE_ENV'] === 'production' 
+  ? [process.env['FRONTEND_URL'] || 'http://localhost', 'https://localhost']
+  : ["http://localhost:5173", "http://localhost"];
+
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost"],
+  origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: [
@@ -54,14 +58,16 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging
-app.use((req, _res, next) => {
-  logger.info(`${req.method} ${req.path}`, {
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
+// Request logging (only in development or when explicitly enabled)
+if (process.env['NODE_ENV'] === 'development' || process.env['ENABLE_REQUEST_LOGGING'] === 'true') {
+  app.use((req, _res, next) => {
+    logger.info(`${req.method} ${req.path}`, {
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
+    next();
   });
-  next();
-});
+}
 
 // Health check endpoint
 app.get('/api/health', healthCheck);

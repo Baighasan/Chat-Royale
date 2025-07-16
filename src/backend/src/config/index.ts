@@ -3,12 +3,14 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Debug: Print what we're loading
-console.log('=== ENVIRONMENT DEBUG ===');
-console.log('Current working directory:', process.cwd());
-console.log('OPENAI_API_KEY loaded:', process.env['OPENAI_API_KEY'] ? 'YES (length: ' + process.env['OPENAI_API_KEY']!.length + ')' : 'NO');
-console.log('All env vars:', Object.keys(process.env).filter(key => key.includes('OPENAI') || key.includes('GPT') || key.includes('PORT')));
-console.log('========================');
+// Debug: Print what we're loading (only in development)
+if (process.env['NODE_ENV'] === 'development') {
+  console.log('=== ENVIRONMENT DEBUG ===');
+  console.log('Current working directory:', process.cwd());
+  console.log('OPENAI_API_KEY loaded:', process.env['OPENAI_API_KEY'] ? 'YES (length: ' + process.env['OPENAI_API_KEY']!.length + ')' : 'NO');
+  console.log('All env vars:', Object.keys(process.env).filter(key => key.includes('OPENAI') || key.includes('GPT') || key.includes('PORT')));
+  console.log('========================');
+}
 
 export const config = {
   server: {

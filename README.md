@@ -10,6 +10,32 @@ A real-time chat application with OpenAI GPT-4o-mini integration and MCP (Model 
 - Express.js backend with streaming support
 - Tool execution with real-time feedback
 
+## Quick Start
+
+### Development
+
+For local development, see the [Development](#development) section below.
+
+### Production Deployment
+
+For production deployment with Docker and proper security configurations:
+
+1. **Quick Deploy**: Use the automated deployment scripts
+   ```bash
+   # Windows
+   .\deploy-prod.ps1
+   
+   # Linux/macOS
+   ./deploy-prod.sh
+   ```
+
+2. **Manual Deploy**: Follow the detailed [Production Deployment Guide](PRODUCTION.md)
+
+3. **Docker Compose**: Use the production configuration
+   ```bash
+   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+   ```
+
 ## MCP Tools Integration
 
 This application supports MCP tools that can be used by OpenAI during conversations. The tools are automatically available when an MCP server is running.

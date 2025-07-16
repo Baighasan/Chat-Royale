@@ -15,6 +15,10 @@ RUN pip install uv
 COPY pyproject.toml uv.lock ./
 COPY src/ ./src/
 
+# Set production environment
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
 # Install dependencies and switch to non-root user
 RUN python -m venv .venv && \
     . .venv/bin/activate && \
