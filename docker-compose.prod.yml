@@ -52,6 +52,8 @@ services:
       context: ./src/frontend
       dockerfile: Dockerfile
       target: nginx
+      args:
+        VITE_API_BASE_URL: https://chat-royale.com
     container_name: chat-royale-frontend
     ports:
       - "8080:80"
