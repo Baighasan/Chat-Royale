@@ -60,13 +60,13 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request logging (only in development or when explicitly enabled)
 if (process.env['NODE_ENV'] === 'development' || process.env['ENABLE_REQUEST_LOGGING'] === 'true') {
-  app.use((req, _res, next) => {
-    logger.info(`${req.method} ${req.path}`, {
-      ip: req.ip,
-      userAgent: req.get('User-Agent'),
-    });
-    next();
+app.use((req, _res, next) => {
+  logger.info(`${req.method} ${req.path}`, {
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
   });
+  next();
+});
 }
 
 // Health check endpoint
