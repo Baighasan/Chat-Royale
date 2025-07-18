@@ -48,7 +48,7 @@ services:
       dockerfile: Dockerfile
     container_name: chat-royale-frontend
     ports:
-      - "80:80"
+      - "8080:8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 30s
