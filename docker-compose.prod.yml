@@ -54,7 +54,7 @@ services:
       target: nginx
     container_name: chat-royale-frontend
     ports:
-      - "80:80"
+      - "8080:80"
     environment:
       - NODE_ENV=production
     healthcheck:
