@@ -1,0 +1,44 @@
+name: MCP Server CI
+
+on:
+  push:
+    paths:
+      - 'src/mcp/**'
+      - '.github/workflows/mcp.yml'
+  pull_request:
+    paths:
+      - 'src/mcp/**'
+      - '.github/workflows/mcp.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/mcp
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install .[dev]
+          pip install ruff mypy
+
+      - name: Lint
+        run: ruff src/
+
+      - name: Type Check
+        run: mypy src/
+
+      - name: Test
+        run: pytest --cov=src
+
+      - name: Build Docker image
+        run: docker build -t mcp-test . 
