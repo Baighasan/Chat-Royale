@@ -84,7 +84,7 @@ export class OpenAIService {
       const toolErrors: ToolError[] = [];
       let conversationMessages = [...openaiMessages];
       let iterationCount = 0;
-      const maxIterations = 10; // Prevent infinite loops
+      const maxIterations = 5; // Prevent infinite loops
       let lastResponse: any = null;
 
       // Loop until OpenAI stops making tool calls or we reach max iterations
