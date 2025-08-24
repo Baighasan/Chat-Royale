@@ -14,8 +14,8 @@ def register_players_tools(mcp):
     @mcp.tool()
     def get_player_info(player_tag: str) -> dict:
         """
-        Fetch player info from the Clash Royale API.
-        
+        Fetch player info from the Clash Royale API. A player tag must be provided to look up a player.
+
         Args:
             player_tag: The player tag to look up (e.g. #ABCDEF). This should either be provided by the user in the
             format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
@@ -59,53 +59,53 @@ def register_players_tools(mcp):
         logger.info(f"get_player_info completed successfully for player: {result.get('name', 'Unknown')}")
         return result
 
-    @mcp.tool()
-    def get_player_upcoming_chests(player_tag: str) -> dict:
-        """
-        Fetch upcoming chests for a player from the Clash Royale API.
+    # @mcp.tool()
+    # def get_player_upcoming_chests(player_tag: str) -> dict:
+    #     """
+    #     Fetch upcoming chests for a player from the Clash Royale API.
         
-        Args:
-            player_tag: The player tag to look up (e.g. #ABCDEF). This should either be provided by the user in the
-            format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
+    #     Args:
+    #         player_tag: The player tag to look up (e.g. #ABCDEF). This should either be provided by the user in the
+    #         format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
             
-        Returns:
-            Upcoming chests information including the index and name. The following is some mock data of the
-            response:
+    #     Returns:
+    #         Upcoming chests information including the index and name. The following is some mock data of the
+    #         response:
             
-            {
-                "items": [
-                    {
-                        "index": 0,
-                        "name": "Golden Chest"
-                    },
-                    {
-                        "index": 1,
-                        "name": "Tower Troop Chest"
-                    },
-                    {
-                        "index": 2,
-                        "name": "Golden Chest"
-                    },
-                    {
-                        "index": 3,
-                        "name": "Plentiful Gold Crate"
-                    }
-                ]
-            }
-        """
-        logger.info(f"get_player_upcoming_chests called with player_tag: {player_tag}")
+    #         {
+    #             "items": [
+    #                 {
+    #                     "index": 0,
+    #                     "name": "Golden Chest"
+    #                 },
+    #                 {
+    #                     "index": 1,
+    #                     "name": "Tower Troop Chest"
+    #                 },
+    #                 {
+    #                     "index": 2,
+    #                     "name": "Golden Chest"
+    #                 },
+    #                 {
+    #                     "index": 3,
+    #                     "name": "Plentiful Gold Crate"
+    #                 }
+    #             ]
+    #         }
+    #     """
+    #     logger.info(f"get_player_upcoming_chests called with player_tag: {player_tag}")
         
-        player_tag = encode_tag(player_tag)
-        endpoint = f"players/{player_tag}/upcomingchests"
+    #     player_tag = encode_tag(player_tag)
+    #     endpoint = f"players/{player_tag}/upcomingchests"
         
-        result = make_api_request(endpoint)
-        logger.info(f"get_player_upcoming_chests completed successfully. Found {len(result.get('items', []))} upcoming chests")
-        return result
+    #     result = make_api_request(endpoint)
+    #     logger.info(f"get_player_upcoming_chests completed successfully. Found {len(result.get('items', []))} upcoming chests")
+    #     return result
 
     @mcp.tool()
     def get_player_battle_log(player_tag: str) -> dict:
         """
-        Fetch battle log for a player from the Clash Royale API. 
+        Fetch battle log for a player from the Clash Royale API. A player tag must be provided to look up a player.
         
         Args:
             player_tag: The player tag to look up (e.g. #ABCDEF). This should either be provided by the user in the

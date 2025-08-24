@@ -10,52 +10,6 @@ def register_clans_tools(mcp):
     Args:
         mcp: The FastMCP server instance
     """
-    
-    # NOTE: Currently, this API endpoint has been temporarily disabled. Possibilities to bring it back are being investigated.
-    '''
-    @mcp.tool()
-    def get_clan_war_log(
-        clan_tag: str,
-        limit: int = None,
-        after: str = None,
-        before: str = None
-        ) -> dict:
-        """
-        Fetch clan war log info from the Clash Royale API.
-        
-        Args:
-            clan_tag: The clan tag to look up (e.g. #ABCDEF)
-            
-            limit: Limit the number of items returned in the response. (optional)
-            
-            after: Return only items that occur after this marker. Before marker can be found from the response, inside the 'paging' property.
-                Note that only after or before can be specified for a request, not both. (optional)
-            
-            before: Return only items that occur before this marker. Before marker can be found from the response, inside the 'paging' property.
-                Note that only after or before can be specified for a request, not both. (optional)
-            
-        Returns:
-            Clan war log.
-        """
-        # Validate that only one of after or before is provided
-        if after is not None and before is not None:
-            raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
-            
-        clan_tag = encode_tag(clan_tag)
-        endpoint = f"clans/{clan_tag}/warlog"
-        
-        # Create a dictionary with only the non-None parameters
-        queries = {k: v for k, v in {
-            "limit": limit,
-            "after": after,
-            "before": before
-        }.items() if v is not None}
-        
-        if queries:
-            endpoint += "?" + build_query_string(queries)
-        
-        return make_api_request(endpoint)
-    '''
 
     @mcp.tool()
     def search_clans(
@@ -65,8 +19,6 @@ def register_clans_tools(mcp):
         max_members:int = None,
         min_score: int = None,
         limit: int = None,
-        after: str = None,
-        before: str = None
         ) -> dict:
         """
         Searches for clans based on various parameters. Retrieves info about the clans that match the search criteria. This tool is
@@ -88,22 +40,10 @@ def register_clans_tools(mcp):
             
             limit: Limit the number of items returned in the response. (optional)
             
-            after: Return only items that occur after this marker. Before marker can be found from the response, inside the 'paging' property.
-                Note that only after or before can be specified for a request, not both. (optional)
-            
-            before: Return only items that occur before this marker. Before marker can be found from the response, inside the 'paging' property.
-                Note that only after or before can be specified for a request, not both. (optional)
-            
         Returns:
             Returns the search results as a JSON object.
         """
-        logger.info(f"search_clans called with name={name}, location_id={location_id}, min_members={min_members}, max_members={max_members}, min_score={min_score}, limit={limit}, after={after}, before={before}")
-        
-        # Validate that only one of after or before is provided
-        if after is not None and before is not None:
-            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
-            raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
-            
+        logger.info(f"search_clans called with name={name}, location_id={location_id}, min_members={min_members}, max_members={max_members}, min_score={min_score}, limit={limit}")
         endpoint = "clans"
         
         # Create a dictionary with only the non-None parameters
@@ -114,8 +54,6 @@ def register_clans_tools(mcp):
             "max_members": max_members,
             "min_score": min_score,
             "limit": limit,
-            "after": after,
-            "before": before
         }.items() if v is not None}
         
         if queries:
@@ -128,73 +66,6 @@ def register_clans_tools(mcp):
         logger.info(f"search_clans completed successfully. Found {len(result)} clans")
         return result
 
-    @mcp.tool()
-    def get_clan_river_race_log(
-        clan_tag: str,
-        limit: int = None,
-        after: str = None,
-        before: str = None
-        ) -> dict:
-        """
-        Fetch clan river race log from the Clash Royale API.
-        
-        Args:
-            clan_tag: The clan tag to look up (e.g. #ABCDEF). This should either be provided by the user in the
-            format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
-            
-            limit: Limit the number of items returned in the response. (optional)
-            
-            after: Return only items that occur after this marker. Before marker can be found from the response, inside the 'paging' property.
-                Note that only after or before can be specified for a request, not both. (optional)
-            
-            before: Return only items that occur before this marker. Before marker can be found from the response, inside the 'paging' property.
-                Note that only after or before can be specified for a request, not both. (optional)
-            
-        Returns:
-            Clan river race log containing past river race data.
-        """
-        logger.info(f"get_clan_river_race_log called with clan_tag={clan_tag}, limit={limit}, after={after}, before={before}")
-        
-        # Validate that only one of after or before is provided
-        if after is not None and before is not None:
-            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
-            raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
-            
-        clan_tag = encode_tag(clan_tag)
-        endpoint = f"clans/{clan_tag}/riverracelog"
-        
-        # Create a dictionary with only the non-None parameters
-        queries = {k: v for k, v in {
-            "limit": limit,
-            "after": after,
-            "before": before
-        }.items() if v is not None}
-        
-        if queries:
-            endpoint += "?" + build_query_string(queries)
-        
-        result = make_api_request(endpoint)
-        logger.info(f"get_clan_river_race_log completed successfully. Found {len(result)} river race entries")
-        return result
-
-    # NOTE: This API endpoint has been permanently removed.
-    '''
-    @mcp.tool()
-    def get_clan_current_war(clan_tag: str) -> dict:
-        """
-        Fetch information about the clan's current war from the Clash Royale API.
-        
-        Args:
-            clan_tag: The clan tag to look up (e.g. #ABCDEF)
-            
-        Returns:
-            Current war information for the specified clan.
-        """
-        clan_tag = encode_tag(clan_tag)
-        endpoint = f"clans/{clan_tag}/currentwar"
-        
-        return make_api_request(endpoint)
-    '''
 
     @mcp.tool()
     def get_clan_info(clan_tag: str) -> dict:
@@ -221,8 +92,6 @@ def register_clans_tools(mcp):
     def get_clan_members(
         clan_tag: str,
         limit: int = None,
-        after: str = None,
-        before: str = None
         ) -> dict:
         """
         Fetch the list of members in a clan from the Clash Royale API.
@@ -241,49 +110,83 @@ def register_clans_tools(mcp):
             
         Returns:
             List of clan members with their details including name, role, trophies, donations, etc.
-        """
-        logger.info(f"get_clan_members called with clan_tag={clan_tag}, limit={limit}, after={after}, before={before}")
-        
-        # Validate that only one of after or before is provided
-        if after is not None and before is not None:
-            logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
-            raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
-            
+        """          
         clan_tag = encode_tag(clan_tag)
-        endpoint = f"clans/{clan_tag}/members"
-        
-        # Create a dictionary with only the non-None parameters
-        queries = {k: v for k, v in {
-            "limit": limit,
-            "after": after,
-            "before": before
-        }.items() if v is not None}
-        
-        if queries:
-            endpoint += "?" + build_query_string(queries)
+        endpoint = f"clans/{clan_tag}/members?limit={limit}" if limit else f"clans/{clan_tag}/members"
         
         result = make_api_request(endpoint)
         logger.info(f"get_clan_members completed successfully. Found {len(result)} members")
         return result
 
-    @mcp.tool()
-    def get_clan_current_river_race(clan_tag: str) -> dict:
-        """
-        Fetch information about the clan's current river race from the Clash Royale API. This should either be provided by the user in the
-            format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
+
+        # i dont think anyones gonna be asking about river race lol
+    # @mcp.tool()
+    # def get_clan_river_race_log(
+    #     clan_tag: str,
+    #     limit: int = None,
+    #     after: str = None,
+    #     before: str = None
+    #     ) -> dict:
+    #     """
+    #     Get information about the current clan river race happening.
         
-        Args:
-            clan_tag: The clan tag to look up (e.g. #ABCDEF)
+    #     Args:
+    #         clan_tag: The clan tag to look up (e.g. #ABCDEF). This should either be provided by the user in the
+    #         format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
             
-        Returns:
-            Current river race information for the specified clan including participating clans,
-            battle days, clan participants, and other river race details.
-        """
-        logger.info(f"get_clan_current_river_race called with clan_tag={clan_tag}")
+    #         limit: Limit the number of items returned in the response. (optional)
+            
+    #         after: Return only items that occur after this marker. Before marker can be found from the response, inside the 'paging' property.
+    #             Note that only after or before can be specified for a request, not both. (optional)
+            
+    #         before: Return only items that occur before this marker. Before marker can be found from the response, inside the 'paging' property.
+    #             Note that only after or before can be specified for a request, not both. (optional)
+            
+    #     Returns:
+    #         Clan river race log containing past river race data.
+    #     """
+    #     logger.info(f"get_clan_river_race_log called with clan_tag={clan_tag}, limit={limit}, after={after}, before={before}")
         
-        clan_tag = encode_tag(clan_tag)
-        endpoint = f"clans/{clan_tag}/currentriverrace"
+    #     # Validate that only one of after or before is provided
+    #     if after is not None and before is not None:
+    #         logger.error("Both 'after' and 'before' parameters provided, which is not allowed")
+    #         raise ValueError("Only one of 'after' or 'before' can be specified, not both.")
+            
+    #     clan_tag = encode_tag(clan_tag)
+    #     endpoint = f"clans/{clan_tag}/riverracelog"
         
-        result = make_api_request(endpoint)
-        logger.info(f"get_clan_current_river_race completed successfully")
-        return result
+    #     # Create a dictionary with only the non-None parameters
+    #     queries = {k: v for k, v in {
+    #         "limit": limit,
+    #         "after": after,
+    #         "before": before
+    #     }.items() if v is not None}
+        
+    #     if queries:
+    #         endpoint += "?" + build_query_string(queries)
+        
+    #     result = make_api_request(endpoint)
+    #     logger.info(f"get_clan_river_race_log completed successfully. Found {len(result)} river race entries")
+    #     return result
+
+    # @mcp.tool()
+    # def get_clan_current_river_race(clan_tag: str) -> dict:
+    #     """
+    #     Fetch information about the clan's current river race from the Clash Royale API. This should either be provided by the user in the
+    #         format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
+        
+    #     Args:
+    #         clan_tag: The clan tag to look up (e.g. #ABCDEF)
+            
+    #     Returns:
+    #         Current river race information for the specified clan including participating clans,
+    #         battle days, clan participants, and other river race details.
+    #     """
+    #     logger.info(f"get_clan_current_river_race called with clan_tag={clan_tag}")
+        
+    #     clan_tag = encode_tag(clan_tag)
+    #     endpoint = f"clans/{clan_tag}/currentriverrace"
+        
+    #     result = make_api_request(endpoint)
+    #     logger.info(f"get_clan_current_river_race completed successfully")
+    #     return result

@@ -11,7 +11,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Try to load environment variables from .env file
-# This will silently fail if .env doesn't exist, which is what we want
 dotenvPath = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
 load_dotenv(dotenvPath)
 
