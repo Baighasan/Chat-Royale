@@ -4,10 +4,8 @@ from .players import register_players_tools
 from .clans import register_clans_tools
 from .cards import register_cards_tools
 from .tournaments import register_tournaments_tools
-from .locations import register_locations_tools
-from .challenges import register_challenges_tools
+from .rankings import register_locations_tools
 from .leaderboards import register_leaderboards_tools
-from .globaltournaments import register_globaltournaments_tools
 
 __all__ = [
     "register_players_tools",
