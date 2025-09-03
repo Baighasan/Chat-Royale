@@ -3,10 +3,10 @@ from .utils import make_api_request, build_query_string, encode_tag
 
 logger = logging.getLogger(__name__)
 
-def register_locations_tools(mcp):
+def register_ranking_tools(mcp):
     """
-    Register all location-related tools with the MCP server.
-    
+    Register all ranking-related tools with the MCP server.
+
     Args:
         mcp: The FastMCP server instance
     """
