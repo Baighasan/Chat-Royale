@@ -35,15 +35,15 @@ export class OpenAIService {
       logger.info('Starting chat processing', {
         conversationId,
         messageLength: payload.message.length,
-        historyLength: payload.history.length,
       });
 
-      const messages = payload.history.concat([
+      // Use only the current message (no history) to prevent context window overflow
+      const messages = [
         {
           role: 'user',
           content: payload.message
         }
-      ]);
+      ];
 
       // Ensure we have tools available
       if (this.tools.length === 0) {
@@ -87,7 +87,7 @@ export class OpenAIService {
       const maxIterations = 5; // Prevent infinite loops
       let lastResponse: any = null;
 
-      // Loop until OpenAI stops making tool calls or we reach max iterations
+      // Loop until agent stops making tool calls or we reach max iterations
       while (iterationCount < maxIterations) {
         iterationCount++;
         

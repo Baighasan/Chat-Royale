@@ -1,5 +1,5 @@
-# Build stage
-FROM node:20-alpine AS build
+# Multi-stage Dockerfile for frontend
+FROM node:20-alpine AS base
 
 # Set working directory
 WORKDIR /app
@@ -7,11 +7,30 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies for build)
+# Install all dependencies
 RUN npm ci
 
 # Copy source code
 COPY . .
+
+# Development stage
+FROM base AS development
+
+# Accept build argument for API URL
+ARG VITE_API_BASE_URL=http://localhost:3001
+
+# Set development environment
+ENV NODE_ENV=development
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Start Vite dev server with host binding for Docker
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+# Build stage
+FROM base AS build
 
 # Accept build argument for API URL
 ARG VITE_API_BASE_URL=http://localhost:3001
@@ -24,7 +43,7 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 RUN npm run build:prod
 
 # Production stage
-FROM nginx:alpine AS nginx
+FROM nginx:alpine AS production
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
