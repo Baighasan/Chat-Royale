@@ -20,6 +20,10 @@ export const config = {
     apiKey: process.env['OPENAI_API_KEY'],
     modelName: process.env['OPENAI_MODEL_NAME'] || 'gpt-4o-mini',
   },
+  gemeni: {
+    apiKey: process.env['GEMINI_API_KEY'],
+    modelName: process.env['GEMINI_MODEL_NAME'] || 'gemini-2.0-flash-lite',
+  },
   rateLimit: {
     windowMs: parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '900000'), // 15 minutes
     maxRequests: parseInt(process.env['RATE_LIMIT_MAX_REQUESTS'] || '100'),
