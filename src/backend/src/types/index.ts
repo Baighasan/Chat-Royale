@@ -11,7 +11,6 @@ export interface ChatResponse {
     completion_tokens: number;
     total_tokens: number;
   };
-  // Tool details are hidden from user responses
 }
 
 export interface ToolResult {

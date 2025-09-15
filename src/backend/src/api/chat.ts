@@ -3,7 +3,7 @@ import { ChatRequest, ChatResponse } from '../types';
 import { logger } from '../utils/logger';
 import { createError } from '../middleware/errorHandler';
 
-// Shared AIService instance (OpenAIService)
+// Shared AIService instance (GeminiService)
 type AIService = {
   processChat: (payload: ChatRequest) => Promise<ChatResponse>;
   healthCheck: () => Promise<boolean>;

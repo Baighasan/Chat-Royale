@@ -1,15 +1,16 @@
-import { FunctionCallingConfigMode, FunctionDeclaration, GoogleGenAI } from "@google/genai";
+import { Chat, FunctionCallingConfigMode, FunctionDeclaration, GoogleGenAI } from "@google/genai";
 import { config } from "../config";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { logger } from "../utils/logger";
-import { ChatRequest } from "../types";
+import { ChatRequest, ChatResponse } from "../types";
 import { createError } from "../middleware/errorHandler";
+import { v4 as uuidv4 } from 'uuid';
 
 
 export class GeminiService {
     private gemini: GoogleGenAI;
-    private chatService: any = null;
+    private chatSessions = new Map<string, Chat>();
     private mcpClient: Client;
     private mcpTransport: StreamableHTTPClientTransport | null = null;
     private mcpServerUrl: URL;
@@ -19,7 +20,7 @@ export class GeminiService {
 
     constructor(mcpServerUrl: string = "http://clash-royale-mcp-server:8000/mcp") {
         this.gemini = new GoogleGenAI({
-            apiKey: config.gemeni.apiKey
+            apiKey: config.gemini.apiKey
         });
         
         this.mcpClient = new Client({
@@ -55,33 +56,83 @@ export class GeminiService {
         if (this.tools.length === 0) {
             await this.connectToMcpServer();
         }
-
-        this.chatService = this.gemini.chats.create({
-            model: config.gemeni.modelName,
-            config: {
-                systemInstruction: "You are an AI assistant specialized in Clash Royale with access to comprehensive game data through the official Clash Royale API. You are knowledgeable, helpful, and engaging when discussing all aspects of Clash Royale.",
-                tools: [{ functionDeclarations: this.tools }],
-                toolConfig: {
-                    functionCallingConfig: {
-                        mode: FunctionCallingConfigMode.AUTO,
-                    }
-                }
-            }
-        });
     }
 
 
-    public async processChat(payload: ChatRequest): Promise<string> {
+    public async processChat(payload: ChatRequest): Promise<ChatResponse> {
         await this.ensureInitialized()
 
+        const conversationId = uuidv4();
+
         try {
-            throw new Error('Gemini process chat not implemented yet');
-            
+            let chat = this.chatSessions.get(conversationId);
+
+            if (!chat) {
+                chat = this.gemini.chats.create({
+                    model: config.gemini.modelName,
+                    config: {
+                        systemInstruction: "You are an AI assistant specialized in Clash Royale with access to comprehensive game data through the official Clash Royale API. You are knowledgeable, helpful, and engaging when discussing all aspects of Clash Royale.",
+                        tools: [{ functionDeclarations: this.tools }],
+                        toolConfig: {
+                            functionCallingConfig: {
+                                mode: FunctionCallingConfigMode.AUTO,
+                            }
+                        }
+                    }
+                });
+                this.chatSessions.set(conversationId, chat);
+            }
+
+            const response = await chat.sendMessage({
+                message: payload.message
+            });
+
+            if (response.functionCalls && response.functionCalls.length > 0) {
+                logger.debug('Function call detected in Gemini response', response.functionCalls);
+                const functionCall = response.functionCalls[0];
+
+                if (!functionCall || !functionCall.name || !functionCall.args) {
+                    throw new Error('Invalid function call structure from Gemini');
+                }
+
+                logger.debug('Function to call:', functionCall.name);
+                logger.debug('Arguments:', JSON.stringify(functionCall.args));
+
+                const toolResult = await this.executeTool(functionCall.name, functionCall.args);
+
+                const followUpResponse = await chat.sendMessage({
+                    message: `The result of the tool call (${functionCall.name}) is: ${JSON.stringify(toolResult)}`,
+                    config: {
+                        toolConfig: {
+                            functionCallingConfig: {
+                                mode: FunctionCallingConfigMode.NONE,   // Prevent further tool calls in this follow-up
+                            }
+                        }
+                    }
+                });
+
+                if (followUpResponse.text) {
+                    return {
+                        conversationId,
+                        content: followUpResponse.text
+                    };
+                } else {
+                    throw new Error('No valid follow-up response from Gemini after tool execution');
+                }
+            } else if (response.text) {
+                return {
+                    conversationId,
+                    content: response.text
+                };
+            } else {
+                throw new Error('No valid response from Gemini');
+            }
+
         } catch (error) {
-            logger.error('Chat processing failed', {
-            error: error instanceof Error ? error.message : 'Unknown error',
-            stack: error instanceof Error ? error.stack : undefined,
-            errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+                logger.error('Chat processing failed', {
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined,
+                errorType: error instanceof Error ? error.constructor.name : 'Unknown',
             });
 
             throw createError('Failed to process chat response', 500);
@@ -120,7 +171,7 @@ export class GeminiService {
         }
     }
 
-    private async connectToMcpServer() {
+    async connectToMcpServer() {
         logger.info('Attempting to connect to MCP server', {
             serverUrl: this.mcpServerUrl.toString()
         });
@@ -152,14 +203,14 @@ export class GeminiService {
         }
     }
 
-    mapMCPToolsToGeminiFunctions(mcpTools: any[]): FunctionDeclaration[] {
+    mapMCPToolsToGeminiFunctions(mcpTools: FunctionDeclaration[]): FunctionDeclaration[] {
         /**
          * Maps the JSON format of the MCP tools to Gemini function declaration structure.
          */
         return mcpTools.map(tool => ({
             name: tool.name,
             description: tool.description || `Execute ${tool.name}`,
-            parametersJsonSchema: tool.inputSchema
+            parametersJsonSchema: tool.parametersJsonSchema
         }));
     }
 
