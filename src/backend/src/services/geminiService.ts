@@ -3,20 +3,23 @@ import { config } from "../config";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { logger } from "../utils/logger";
-import { ChatRequest, ChatResponse } from "../types";
+import { ChatRequest, ChatResponse, SessionData } from "../types";
 import { createError } from "../middleware/errorHandler";
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
+import { Request } from 'express';
 
 
 export class GeminiService {
     private gemini: GoogleGenAI;
-    private chatSessions = new Map<string, Chat>();
+    private chatSessions = new Map<string, SessionData>();
     private mcpClient: Client;
     private mcpTransport: StreamableHTTPClientTransport | null = null;
     private mcpServerUrl: URL;
     private tools: FunctionDeclaration[] = [];
     private isInitialized: boolean = false;
     private initializationPromise: Promise<void> | null = null;
+    private sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours
+    private cleanupInterval: NodeJS.Timeout | null = null;
 
     constructor(mcpServerUrl: string = "http://clash-royale-mcp-server:8000/mcp") {
         this.gemini = new GoogleGenAI({
@@ -31,6 +34,9 @@ export class GeminiService {
         });
 
         this.mcpServerUrl = new URL(mcpServerUrl);
+
+        // Start periodic session cleanup
+        this.startSessionCleanup();
     }
 
     private async ensureInitialized(): Promise<void> {
@@ -59,15 +65,33 @@ export class GeminiService {
     }
 
 
-    public async processChat(payload: ChatRequest): Promise<ChatResponse> {
+    private generateUserIdentifier(req: Request): string {
+        // Create a consistent identifier based on IP and User-Agent
+        const ip = req.ip || req.connection.remoteAddress || 'unknown';
+        const userAgent = req.get('User-Agent') || 'unknown';
+
+        // Create a hash for privacy and consistency
+        const identifier = crypto
+            .createHash('sha-256')
+            .update(`${ip}_${userAgent}`)
+            .digest('hex');
+
+        return identifier;
+    }
+
+    public async processChat(payload: ChatRequest, req: Request): Promise<ChatResponse> {
         await this.ensureInitialized()
 
-        const conversationId = uuidv4();
+        // Generate consistent user-based session ID
+        const userIdentifier = this.generateUserIdentifier(req);
+        const conversationId = `session_${userIdentifier}`;
 
         try {
-            let chat = this.chatSessions.get(conversationId);
+            let sessionData = this.chatSessions.get(conversationId);
+            let chat: Chat;
 
-            if (!chat) {
+            if (!sessionData) {
+                // Create new session
                 chat = this.gemini.chats.create({
                     model: config.gemini.modelName,
                     config: {
@@ -80,7 +104,28 @@ export class GeminiService {
                         }
                     }
                 });
-                this.chatSessions.set(conversationId, chat);
+
+                sessionData = {
+                    chat,
+                    lastActivity: new Date(),
+                    createdAt: new Date()
+                };
+
+                this.chatSessions.set(conversationId, sessionData);
+
+                logger.info('Created new user session', {
+                    conversationId,
+                    userIdentifier
+                });
+            } else {
+                // Update existing session activity
+                chat = sessionData.chat;
+                sessionData.lastActivity = new Date();
+
+                logger.debug('Using existing user session', {
+                    conversationId,
+                    sessionAge: Date.now() - sessionData.createdAt.getTime()
+                });
             }
 
             const response = await chat.sendMessage({
@@ -203,6 +248,63 @@ export class GeminiService {
         }
     }
 
+    private startSessionCleanup(): void {
+        // Run cleanup every hour
+        this.cleanupInterval = setInterval(() => {
+            this.cleanupExpiredSessions();
+        }, 60 * 60 * 1000); // 1 hour
+
+        logger.info('Session cleanup scheduler started', {
+            intervalHours: 1,
+            sessionTimeoutHours: this.sessionTimeout / (60 * 60 * 1000)
+        });
+    }
+
+    private cleanupExpiredSessions(): void {
+        const now = new Date();
+        let cleanedCount = 0;
+        const initialCount = this.chatSessions.size;
+
+        for (const [sessionId, sessionData] of this.chatSessions) {
+            const timeSinceActivity = now.getTime() - sessionData.lastActivity.getTime();
+
+            if (timeSinceActivity > this.sessionTimeout) {
+                this.chatSessions.delete(sessionId);
+                cleanedCount++;
+
+                logger.debug('Cleaned up expired session', {
+                    sessionId,
+                    hoursInactive: Math.round(timeSinceActivity / (60 * 60 * 1000))
+                });
+            }
+        }
+
+        if (cleanedCount > 0) {
+            logger.info('Session cleanup completed', {
+                cleaned: cleanedCount,
+                remaining: this.chatSessions.size,
+                initialCount
+            });
+        }
+    }
+
+    public clearSession(conversationId: string): boolean {
+        const existed = this.chatSessions.has(conversationId);
+        this.chatSessions.delete(conversationId);
+
+        if (existed) {
+            logger.info('Session cleared manually', { conversationId });
+        }
+
+        return existed;
+    }
+
+    public clearUserSession(req: Request): boolean {
+        const userIdentifier = this.generateUserIdentifier(req);
+        const conversationId = `session_${userIdentifier}`;
+        return this.clearSession(conversationId);
+    }
+
     mapMCPToolsToGeminiFunctions(mcpTools: FunctionDeclaration[]): FunctionDeclaration[] {
         /**
          * Maps the JSON format of the MCP tools to Gemini function declaration structure.
@@ -228,5 +330,17 @@ export class GeminiService {
             });
             return false;
         }
+    }
+
+    public shutdown(): void {
+        if (this.cleanupInterval) {
+            clearInterval(this.cleanupInterval);
+            this.cleanupInterval = null;
+            logger.info('Session cleanup scheduler stopped');
+        }
+
+        // Clear all sessions
+        this.chatSessions.clear();
+        logger.info('All sessions cleared during shutdown');
     }
 }

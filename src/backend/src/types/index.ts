@@ -34,4 +34,10 @@ export interface ErrorResponse {
   error: string;
   message: string;
   statusCode: number;
+}
+
+export interface SessionData {
+  chat: any; // Gemini Chat instance
+  lastActivity: Date;
+  createdAt: Date;
 } 

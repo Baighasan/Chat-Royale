@@ -5,7 +5,7 @@ import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { healthCheck, setAIService } from './api/health';
-import { processChat, setAIService as setChatAIService } from './api/chat';
+import { processChat, clearChat, setAIService as setChatAIService } from './api/chat';
 import { GeminiService } from './services/geminiService';
 import { logger } from './utils/logger';
 
@@ -75,6 +75,9 @@ app.get('/api/health', healthCheck);
 // Chat processing endpoint
 app.post('/api/chat', processChat);
 
+// Clear chat session endpoint
+app.post('/api/chat/clear', clearChat);
+
 // 404 handler
 app.use('*', (_req, res) => {
   res.status(404).json({
@@ -90,11 +93,13 @@ app.use(errorHandler);
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
+  geminiService.shutdown();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   logger.info('SIGINT received, shutting down gracefully');
+  geminiService.shutdown();
   process.exit(0);
 });
 
