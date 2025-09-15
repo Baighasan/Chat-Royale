@@ -49,12 +49,10 @@ RUN apk add --no-cache curl
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy built application
+# Copy built application and dependencies
 COPY --from=build --chown=nextjs:nodejs /app/dist ./dist
 COPY --from=build --chown=nextjs:nodejs /app/package*.json ./
-
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+COPY --from=build --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 USER nextjs
 

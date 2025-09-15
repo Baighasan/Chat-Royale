@@ -3,7 +3,7 @@ services:
     build:
       context: ./src/backend
       dockerfile: Dockerfile
-      target: runner
+      target: production
     container_name: chat-royale-backend
     ports:
       - "3001:3001"
@@ -51,9 +51,9 @@ services:
     build:
       context: ./src/frontend
       dockerfile: Dockerfile
-      target: nginx
+      target: production
       args:
-        VITE_API_BASE_URL: https://chat-royale.com
+        VITE_API_BASE_URL: http://localhost:3001
     container_name: chat-royale-frontend
     ports:
       - "8080:80"

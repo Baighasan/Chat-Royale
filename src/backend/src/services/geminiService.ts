@@ -1,7 +1,7 @@
 import { Chat, FunctionCallingConfigMode, FunctionDeclaration, GoogleGenAI } from "@google/genai";
 import { config } from "../config";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { logger } from "../utils/logger";
 import { ChatRequest, ChatResponse, SessionData } from "../types";
 import { createError } from "../middleware/errorHandler";

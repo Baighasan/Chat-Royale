@@ -61,7 +61,7 @@ services:
         VITE_API_BASE_URL: http://localhost:3001
     container_name: chat-royale-frontend-dev
     ports:
-      - "8080:5173"
+      - "3000:5173"
     volumes:
       - ./src/frontend/src:/app/src
       - ./src/frontend/public:/app/public
