@@ -1,6 +1,6 @@
 # Chat Royale
 
-AI-powered Clash Royale assistant using OpenAI GPT-4o-mini with MCP tools for real-time game data access.
+AI-powered Clash Royale agent using Gemini 2.0 with MCP tools for real-time game data access.
 
 🌐 **Live**: [https://chat-royale.com](https://chat-royale.com)
 
@@ -9,12 +9,12 @@ AI-powered Clash Royale assistant using OpenAI GPT-4o-mini with MCP tools for re
 Three containerized services:
 
 **MCP Server** (`src/mcp/`) - Python FastMCP server exposing Clash Royale API tools:
-- Players, Clans, Cards, Tournaments, Locations, Challenges, Leaderboards, Global Tournaments
+- Players, Clans, Cards, Rankings
 
 **Backend API** (`src/backend/`) - Node.js/Express server:
 - Integrates OpenAI with MCP client via `@modelcontextprotocol/sdk`
 - Standard JSON request/response (no streaming)
-- Tool execution handled internally with iterative OpenAI calls
+- Tool execution handled internally with iterative Gemini calls
 
 **Frontend** (`src/frontend/`) - React/TypeScript UI:
 - Simple chat interface with markdown support
@@ -36,14 +36,14 @@ Three containerized services:
 
 ```bash
 # Deploy
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
 ## Development
 
 ```bash
 # Environment setup
-# Backend: src/backend/.env - OPENAI_API_KEY
+# Backend: src/backend/.env - GEMINI_API_KEY
 # MCP: src/mcp/.env - CR_API_KEY
 
 # Run all services
