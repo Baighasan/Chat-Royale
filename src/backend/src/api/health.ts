@@ -2,10 +2,15 @@ import { Request, Response } from 'express';
 import { HealthResponse } from '../types';
 import { logger } from '../utils/logger';
 
-// Import the shared service instance
-let aiService: any = null;
+// Shared AIService instance (GeminiService)
+type AIService = {
+  healthCheck: () => Promise<boolean>;
+};
 
-export const setAIService = (service: any) => {
+// Import the shared service instance
+let aiService: AIService | null = null;
+
+export const setAIService = (service: AIService) => {
   aiService = service;
 };
 

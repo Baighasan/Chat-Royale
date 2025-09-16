@@ -1,11 +1,6 @@
-export interface ChatMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
 
 export interface ChatRequest {
   message: string;
-  history: ChatMessage[];
 }
 
 export interface ChatResponse {
@@ -16,7 +11,6 @@ export interface ChatResponse {
     completion_tokens: number;
     total_tokens: number;
   };
-  // Tool details are hidden from user responses
 }
 
 export interface ToolResult {
@@ -40,4 +34,10 @@ export interface ErrorResponse {
   error: string;
   message: string;
   statusCode: number;
+}
+
+export interface SessionData {
+  chat: any; // Gemini Chat instance
+  lastActivity: Date;
+  createdAt: Date;
 } 

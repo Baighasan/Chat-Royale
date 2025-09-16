@@ -5,21 +5,21 @@ import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { healthCheck, setAIService } from './api/health';
-import { processChat, setAIService as setChatAIService } from './api/chat';
-import { OpenAIService } from './services/openaiService';
+import { processChat, clearChat, setAIService as setChatAIService } from './api/chat';
+import { GeminiService } from './services/geminiService';
 import { logger } from './utils/logger';
 
 const app = express();
 
-// Initialize OpenAIService with MCP
-const openaiService = new OpenAIService();
-setChatAIService(openaiService);
-setAIService(openaiService);
+// Initialize GeminiService with MCP
+const geminiService = new GeminiService();
+setChatAIService(geminiService);
+setAIService(geminiService);
 
 // CORS configuration (must come before helmet)
 const corsOrigins = process.env['NODE_ENV'] === 'production' 
   ? [process.env['FRONTEND_URL'] || 'http://localhost', 'https://localhost']
-  : ["http://localhost:5173", "http://localhost"];
+  : ["http://localhost:8080", "http://localhost"];
 
 app.use(cors({
   origin: corsOrigins,
@@ -75,6 +75,9 @@ app.get('/api/health', healthCheck);
 // Chat processing endpoint
 app.post('/api/chat', processChat);
 
+// Clear chat session endpoint
+app.post('/api/chat/clear', clearChat);
+
 // 404 handler
 app.use('*', (_req, res) => {
   res.status(404).json({
@@ -90,28 +93,24 @@ app.use(errorHandler);
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
+  geminiService.shutdown();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   logger.info('SIGINT received, shutting down gracefully');
+  geminiService.shutdown();
   process.exit(0);
 });
 
 // Start server
 const PORT = config.server.port;
 
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
   logger.info(`Environment: ${process.env['NODE_ENV'] || 'development'}`);
-  logger.info(`OpenAI model: ${config.openai.modelName}`);
-  // Initialize MCP connection
-  try {
-    await openaiService.connectToServer();
-    logger.info('MCP server connected successfully');
-  } catch (error) {
-    logger.warn('Failed to connect to MCP server, continuing without tools:', error);
-  }
+  logger.info(`Gemini model: ${config.gemini.modelName}`);
+  logger.info('MCP connection will be established on first chat request');
 });
 
-export default app; 
+export default app;

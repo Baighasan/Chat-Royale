@@ -1,25 +1,45 @@
-# Backend-only Dockerfile for production
+# Multi-stage Dockerfile for backend
 FROM node:20-alpine AS base
 
 WORKDIR /app
 
-# Copy backend package files
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies for build)
+# Install all dependencies
 RUN npm ci
 
-# Copy backend source
+# Copy source code
 COPY . ./
 
-# Set production environment
+# Development stage
+FROM base AS development
+
+# Set development environment
+ENV NODE_ENV=development
+ENV PORT=3001
+
+# Expose port
+EXPOSE 3001
+
+# Start with nodemon for hot reloading
+CMD ["npm", "run", "dev"]
+
+# Build stage
+FROM base AS build
+
+# Set production environment for build
 ENV NODE_ENV=production
 
-# Build backend
+# Build the application
 RUN npm run build:prod
 
-# Production image
-FROM node:20-alpine AS runner
+# Production stage
+FROM node:20-alpine AS production
+
 WORKDIR /app
 
 # Install curl for health checks
@@ -29,12 +49,10 @@ RUN apk add --no-cache curl
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy built backend
-COPY --from=base --chown=nextjs:nodejs /app/dist ./dist
-COPY --from=base --chown=nextjs:nodejs /app/package*.json ./
-
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Copy built application and dependencies
+COPY --from=build --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=build --chown=nextjs:nodejs /app/package*.json ./
+COPY --from=build --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 USER nextjs
 

@@ -4,7 +4,7 @@ from tools import (
     register_players_tools,
     register_clans_tools, 
     register_cards_tools,
-    register_locations_tools
+    register_ranking_tools
     )
 
 mcp = FastMCP(
@@ -17,7 +17,7 @@ mcp = FastMCP(
 register_players_tools(mcp)
 register_clans_tools(mcp)
 register_cards_tools(mcp)
-register_locations_tools(mcp)
+register_ranking_tools(mcp)
 
 
 if __name__ == "__main__":
