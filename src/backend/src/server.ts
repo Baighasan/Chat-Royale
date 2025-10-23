@@ -19,7 +19,7 @@ setAIService(geminiService);
 // CORS configuration (must come before helmet)
 const corsOrigins = process.env['NODE_ENV'] === 'production' 
   ? [process.env['FRONTEND_URL'] || 'http://localhost', 'https://localhost']
-  : ["http://localhost:8080", "http://localhost"];
+  : ["http://localhost:3000", "http://localhost"];
 
 app.use(cors({
   origin: corsOrigins,

@@ -17,6 +17,8 @@ html {
 @layer base {
   body {
     @apply bg-background-primary text-text-primary font-sans;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    background-attachment: fixed;
   }
 }
 
@@ -25,7 +27,7 @@ html {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -33,18 +35,52 @@ html {
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #262626;
+  background: rgba(15, 23, 42, 0.3);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #404040;
-  border-radius: 3px;
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #525252;
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Disable transitions for specific properties that shouldn't animate */
+*:not(.animate-fade-in):not(.animate-slide-up) {
+  transition-property: background-color, border-color, box-shadow, transform;
+}
+
+/* Clash Royale-style glow effects on hover */
+.message-bubble-user:hover {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(59, 130, 246, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.message-bubble-assistant:hover {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(168, 85, 247, 0.4) !important;
+  transform: translateY(-1px);
 } 

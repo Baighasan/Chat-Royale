@@ -2,10 +2,20 @@ import { create } from 'zustand';
 import { Message, ChatState, ChatRequest } from '../types';
 import { processChat } from '../services/chatService';
 
-export const useChatStore = create<ChatState>((set) => ({
+interface ExtendedChatState extends ChatState {
+  setInputValue: (value: string) => void;
+  inputValue: string;
+}
+
+export const useChatStore = create<ExtendedChatState>((set) => ({
   messages: [],
   isLoading: false,
   error: null,
+  inputValue: '',
+
+  setInputValue: (value: string) => {
+    set({ inputValue: value });
+  },
 
   addMessage: (message: Message) => {
     set((state) => ({
