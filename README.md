@@ -12,7 +12,7 @@ Three containerized services:
 - Players, Clans, Cards, Rankings
 
 **Backend API** (`src/backend/`) - Node.js/Express server:
-- Integrates OpenAI with MCP client via `@modelcontextprotocol/sdk`
+- Integrates Gemini with MCP client via `@modelcontextprotocol/sdk`
 - Standard JSON request/response (no streaming)
 - Tool execution handled internally with iterative Gemini calls
 
@@ -25,14 +25,14 @@ Three containerized services:
 1. User sends message to frontend
 2. Frontend posts to backend `/api/chat`
 3. Backend connects to MCP server and discovers tools
-4. OpenAI processes message with available tools
+4. Gemini processes message with available tools
 5. If tools needed: backend executes via MCP, feeds results back to OpenAI
 6. Final response returned as JSON to frontend
 
 ## Deployment
 
-**Production**: AWS Lightsail with Cloudflare CDN  
-**CI/CD**: GitHub Actions auto-deploy on `main` branch push
+**Production**: AWS Lightsail with Cloudflare CDN
+**CI/CD**: GitHub Actions auto-deploy on `main` branch push/merge
 
 ```bash
 # Deploy
@@ -53,6 +53,6 @@ docker-compose up -d
 ## Tech Stack
 
 - **MCP Server**: Python 3.12, FastMCP, Clash Royale API
-- **Backend**: Node.js, Express, TypeScript, OpenAI SDK
+- **Backend**: Node.js, Express, TypeScript, Gemini SDK
 - **Frontend**: React, TypeScript, Vite, TailwindCSS
 - **Deployment**: Docker, AWS Lightsail, Cloudflare, GitHub Actions
