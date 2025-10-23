@@ -128,50 +128,69 @@ export class GeminiService {
                 });
             }
 
-            const response = await chat.sendMessage({
-                message: payload.message
-            });
+            // Iterative loop to handle multiple tool calls (tool chaining)
+            let iterationCount = 0;
+            const maxIterations = 5;
+            let currentMessage = payload.message;
 
-            if (response.functionCalls && response.functionCalls.length > 0) {
-                logger.debug('Function call detected in Gemini response', response.functionCalls);
+            while (iterationCount < maxIterations) {
+                iterationCount++;
+
+                logger.info(`Processing Gemini message (iteration ${iterationCount})`, {
+                    conversationId,
+                    iteration: iterationCount
+                });
+
+                // Send message and get response
+                const response = await chat.sendMessage({ message: currentMessage });
+
+                // If no tool calls, return the text response
+                if (!response.functionCalls || response.functionCalls.length === 0) {
+                    if (response.text) {
+                        logger.info('Chat processing completed', {
+                            conversationId,
+                            totalIterations: iterationCount,
+                            responseLength: response.text.length
+                        });
+
+                        return {
+                            conversationId,
+                            content: response.text
+                        };
+                    }
+                    throw new Error('No valid response from Gemini');
+                }
+
+                // Process the single tool call
                 const functionCall = response.functionCalls[0];
 
                 if (!functionCall || !functionCall.name || !functionCall.args) {
                     throw new Error('Invalid function call structure from Gemini');
                 }
 
-                logger.debug('Function to call:', functionCall.name);
-                logger.debug('Arguments:', JSON.stringify(functionCall.args));
-
-                const toolResult = await this.executeTool(functionCall.name, functionCall.args);
-
-                const followUpResponse = await chat.sendMessage({
-                    message: `The result of the tool call (${functionCall.name}) is: ${JSON.stringify(toolResult)}`,
-                    config: {
-                        toolConfig: {
-                            functionCallingConfig: {
-                                mode: FunctionCallingConfigMode.NONE,   // Prevent further tool calls in this follow-up
-                            }
-                        }
-                    }
+                logger.info('Executing tool call', {
+                    conversationId,
+                    iteration: iterationCount,
+                    functionName: functionCall.name,
+                    args: JSON.stringify(functionCall.args)
                 });
 
-                if (followUpResponse.text) {
-                    return {
-                        conversationId,
-                        content: followUpResponse.text
-                    };
-                } else {
-                    throw new Error('No valid follow-up response from Gemini after tool execution');
-                }
-            } else if (response.text) {
-                return {
+                // Execute the tool
+                const toolResult = await this.executeTool(functionCall.name, functionCall.args);
+
+                logger.debug('Tool execution completed', {
                     conversationId,
-                    content: response.text
-                };
-            } else {
-                throw new Error('No valid response from Gemini');
+                    iteration: iterationCount,
+                    toolName: functionCall.name
+                });
+
+                // Prepare tool result as the next message
+                currentMessage = `Tool execution result for ${functionCall.name}:\n${JSON.stringify(toolResult, null, 2)}`;
+
+                // Loop continues - next iteration will send this result
             }
+
+            throw new Error(`Maximum iterations (${maxIterations}) reached without final response`);
 
         } catch (error) {
                 logger.error('Chat processing failed', {
