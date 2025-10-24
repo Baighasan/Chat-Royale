@@ -2,8 +2,6 @@
 
 AI-powered Clash Royale agent using Gemini 2.0 with MCP tools for real-time game data access.
 
-🌐 **Live**: [https://chat-royale.com](https://chat-royale.com)
-
 ## Architecture
 
 Three containerized services:
