@@ -11,7 +11,7 @@ export const MessageList: React.FC = () => {
   const suggestions = [
     { label: 'Player stats', prompt: 'What are the stats for the player with the id [player id]?' },
     { label: 'Clan info', prompt: 'Tell me about the clan with the name [clan name].' },
-    { label: 'Rankings', prompt: 'Who is the top player on path of legends in Canada and what deck is he using?' },
+    { label: 'Rankings', prompt: 'Who is the top player on path of legends in Canada and what are their stats?' },
   ];
 
   const handleSuggestionClick = (prompt: string) => {
