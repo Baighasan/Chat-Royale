@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Wrench } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
+import ToolsModal from '../ui/ToolsModal';
 
 export const Header: React.FC = () => {
   const { clearMessages } = useChatStore();
+  const [isToolsModalOpen, setIsToolsModalOpen] = useState(false);
 
   const handleResetChat = () => {
     clearMessages();
+  };
+
+  const handleOpenTools = () => {
+    setIsToolsModalOpen(true);
+  };
+
+  const handleCloseTools = () => {
+    setIsToolsModalOpen(false);
   };
 
   return (
@@ -47,31 +58,46 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Section - Reset Button */}
-          <button
-            onClick={handleResetChat}
-            className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shadow-soft hover:shadow-soft-lg"
-            title="Reset Chat History"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="sm:w-6 sm:h-6"
+          {/* Right Section - Tools and Reset Buttons */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            {/* Tools Button */}
+            <button
+              onClick={handleOpenTools}
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shadow-soft hover:shadow-soft-lg hover:shadow-glow-purple"
+              title="View Available Tools"
             >
-              <path
-                d="M6 6L18 18M18 6L6 18"
-                stroke="white"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+              <Wrench className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </button>
+
+            {/* Reset Button */}
+            <button
+              onClick={handleResetChat}
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shadow-soft hover:shadow-soft-lg"
+              title="Reset Chat History"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="sm:w-6 sm:h-6"
+              >
+                <path
+                  d="M6 6L18 18M18 6L6 18"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Tools Modal */}
+      <ToolsModal isOpen={isToolsModalOpen} onClose={handleCloseTools} />
     </header>
   );
 }; 
