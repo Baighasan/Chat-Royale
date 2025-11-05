@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
+import ToolsModal from '../ui/ToolsModal';
 
 export const Header: React.FC = () => {
   const { clearMessages } = useChatStore();
+  const [isToolsModalOpen, setIsToolsModalOpen] = useState(false);
 
   const handleResetChat = () => {
     clearMessages();
+  };
+
+  const handleOpenTools = () => {
+    setIsToolsModalOpen(true);
+  };
+
+  const handleCloseTools = () => {
+    setIsToolsModalOpen(false);
   };
 
   return (
@@ -47,31 +58,63 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Section - Reset Button */}
-          <button
-            onClick={handleResetChat}
-            className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shadow-soft hover:shadow-soft-lg"
-            title="Reset Chat History"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="sm:w-6 sm:h-6"
+          {/* Right Section - Tools and Reset Buttons */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            {/* What Can I Do Button */}
+            <button
+              onClick={handleOpenTools}
+              className="group flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-600 hover:from-purple-600 hover:via-purple-700 hover:to-indigo-700 cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shadow-soft hover:shadow-soft-lg hover:shadow-glow-purple relative overflow-hidden"
+              title="See what I can help you with"
             >
-              <path
-                d="M6 6L18 18M18 6L6 18"
-                stroke="white"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              {/* Animated shimmer effect */}
+              <div
+                className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"
+                style={{
+                  background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)'
+                }}
               />
-            </svg>
-          </button>
+
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white relative z-10 animate-pulse" />
+              <span
+                className="text-xs sm:text-sm font-bold text-white whitespace-nowrap relative z-10"
+                style={{
+                  fontFamily: 'Supercell Magic, Inter, sans-serif',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                }}
+              >
+                What Can I Do?
+              </span>
+            </button>
+
+            {/* Reset Button */}
+            <button
+              onClick={handleResetChat}
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shadow-soft hover:shadow-soft-lg"
+              title="Reset Chat History"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="sm:w-6 sm:h-6"
+              >
+                <path
+                  d="M6 6L18 18M18 6L6 18"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Tools Modal */}
+      <ToolsModal isOpen={isToolsModalOpen} onClose={handleCloseTools} />
     </header>
   );
 }; 
