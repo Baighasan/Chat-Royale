@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wrench } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
 import ToolsModal from '../ui/ToolsModal';
 
@@ -60,13 +60,30 @@ export const Header: React.FC = () => {
 
           {/* Right Section - Tools and Reset Buttons */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            {/* Tools Button */}
+            {/* What Can I Do Button */}
             <button
               onClick={handleOpenTools}
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shadow-soft hover:shadow-soft-lg hover:shadow-glow-purple"
-              title="View Available Tools"
+              className="group flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-600 hover:from-purple-600 hover:via-purple-700 hover:to-indigo-700 cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shadow-soft hover:shadow-soft-lg hover:shadow-glow-purple relative overflow-hidden"
+              title="See what I can help you with"
             >
-              <Wrench className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              {/* Animated shimmer effect */}
+              <div
+                className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"
+                style={{
+                  background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)'
+                }}
+              />
+
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white relative z-10 animate-pulse" />
+              <span
+                className="text-xs sm:text-sm font-bold text-white whitespace-nowrap relative z-10"
+                style={{
+                  fontFamily: 'Supercell Magic, Inter, sans-serif',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                }}
+              >
+                What Can I Do?
+              </span>
             </button>
 
             {/* Reset Button */}
