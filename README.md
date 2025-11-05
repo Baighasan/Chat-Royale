@@ -30,6 +30,7 @@ Three containerized services:
 ## Deployment
 
 **Production**: AWS Lightsail with Cloudflare CDN
+
 **CI/CD**: GitHub Actions auto-deploy on `main` branch push/merge
 
 ```bash
