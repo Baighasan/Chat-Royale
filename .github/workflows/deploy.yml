@@ -23,5 +23,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }} << 'EOF'
             cd /home/ubuntu/Chat-Royale
             git pull origin main
+            docker compose down
             docker compose -f docker-compose.prod.yml up -d --build
           EOF
