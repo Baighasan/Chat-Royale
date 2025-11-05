@@ -21,7 +21,7 @@ def register_players_tools(mcp):
             format of a string with a leading '#', or retrieved as a part of a reponse from a different tool.
             
         Returns:
-            Player information including stats, cards, etc. The following is some mock data of the first part of a
+            Player information including stats, deck, etc. The following is some mock data of the first part of a
             player info response:
             
             {

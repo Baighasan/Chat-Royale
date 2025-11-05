@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Chat Royale** is an AI-powered Clash Royale assistant that combines OpenAI's GPT-4o-mini with real-time game data access through the Clash Royale API. The application uses the Model Context Protocol (MCP) to provide structured access to comprehensive game data.
+**Chat Royale** is an AI-powered Clash Royale assistant that combines Google's Gemini 2.0 Flash Lite with real-time game data access through the Clash Royale API. The application uses the Model Context Protocol (MCP) to provide structured access to comprehensive game data.
 
 **Live URL**: [https://chat-royale.com](https://chat-royale.com)
 
@@ -51,28 +51,37 @@ Frontend (React) → Backend (Node.js/Express) → MCP Server (Python) → Clash
 
 ### 2. Backend API (`src/backend/`)
 
-**Purpose**: Node.js/Express server that integrates OpenAI with MCP client for chat processing
+**Purpose**: Node.js/Express server that integrates Google Gemini with MCP client for chat processing
 
 **Architecture**:
 - **Framework**: Node.js 18+, Express, TypeScript
 - **Port**: 3001
-- **Dependencies**: `openai`, `@modelcontextprotocol/sdk`, `express`, `cors`, `helmet`
+- **Dependencies**: `@google/genai`, `@modelcontextprotocol/sdk`, `express`, `cors`, `helmet`, `express-rate-limit`, `uuid`
 
 **Key Files**:
-- `src/server.ts:1-117` - Main server setup, middleware, and MCP connection
-- `src/services/openaiService.ts:1-100+` - OpenAI integration and MCP client management
-- `src/api/chat.ts:1-63` - Chat endpoint with request validation
-- `src/api/health.ts` - Health check endpoint
-- `src/config/index.ts:1-32` - Environment configuration and validation
+- `src/server.ts:1-116` - Main server setup, middleware, and Gemini service initialization
+- `src/services/geminiService.ts:1-365` - Gemini integration, MCP client management, and session handling
+- `src/api/chat.ts:1-77` - Chat endpoint with request validation and session clearing
+- `src/api/health.ts` - Health check endpoint with Gemini status
+- `src/config/index.ts:1-39` - Environment configuration and validation for both Gemini and OpenAI
+- `src/utils/logger.ts:1-16` - Custom console-based logger with timestamps
 
 **Core Features**:
 
-**OpenAI Integration** (`openaiService.ts`):
-- Model: `gpt-4o-mini` (configurable)
+**Gemini Integration** (`geminiService.ts`):
+- Model: `gemini-2.0-flash-lite` (configurable via `GEMINI_MODEL_NAME`)
 - MCP client with StreamableHTTP transport
-- Tool execution with iterative OpenAI calls (max 5 iterations)
-- Conversation ID tracking for logging
+- Tool execution with iterative Gemini calls (max 5 iterations)
+- Tool chaining: Results from one tool call feed back into Gemini for continued processing
+- Lazy initialization on first chat request
 - Automatic MCP reconnection on failure
+
+**Session Management**:
+- User-based persistent chat sessions using IP/User-Agent hash (SHA-256)
+- Session format: `session_{user_identifier}` for consistent conversation history
+- 24-hour session timeout with automatic cleanup (hourly interval)
+- Manual session clearing via `/api/chat/clear` endpoint
+- Session metadata: creation time, last activity tracking
 
 **Security & Middleware**:
 - CORS with configurable origins
@@ -82,18 +91,20 @@ Frontend (React) → Backend (Node.js/Express) → MCP Server (Python) → Clash
 - Input validation and sanitization
 
 **API Endpoints**:
-- `POST /api/chat` - Main chat processing endpoint
-- `GET /api/health` - Health check with MCP status
+- `POST /api/chat` - Main chat processing endpoint with session persistence
+- `POST /api/chat/clear` - Clear user's chat session manually
+- `GET /api/health` - Health check with Gemini and MCP status
 
 **Configuration**:
-- **Environment**: `OPENAI_API_KEY`, `PORT`, `NODE_ENV`
-- **Rate Limiting**: Configurable window and max requests
+- **Environment**: `GEMINI_API_KEY` (required), `OPENAI_API_KEY` (validated but unused), `PORT`, `NODE_ENV`
+- **Model Configuration**: `GEMINI_MODEL_NAME` (default: `gemini-2.0-flash-lite`)
+- **Rate Limiting**: Configurable window and max requests (`RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX_REQUESTS`)
 - **CORS Origins**: Production vs development domains
 
 **Error Handling**:
 - Centralized error middleware (`errorHandler.ts`)
-- Structured logging with Winston
-- Graceful shutdown handling
+- Custom console-based structured logging with timestamps
+- Graceful shutdown handling with session cleanup
 
 ### 3. Frontend (`src/frontend/`)
 
@@ -102,8 +113,15 @@ Frontend (React) → Backend (Node.js/Express) → MCP Server (Python) → Clash
 **Architecture**:
 - **Framework**: React 18, TypeScript, Vite
 - **State Management**: Zustand
-- **Styling**: TailwindCSS with custom Clash Royale theme
+- **Styling**: TailwindCSS with custom Clash Royale theme and typography plugin
 - **Build Tool**: Vite with TypeScript
+- **Production Server**: nginx (Alpine-based) with custom configuration
+
+**Dependencies**:
+- **Core**: `react`, `react-dom`, `zustand`
+- **Markdown & Syntax**: `react-markdown`, `react-syntax-highlighter`
+- **Icons**: `lucide-react`
+- **Styling**: `tailwindcss`, `@tailwindcss/typography`, `autoprefixer`, `postcss`
 
 **Key Files**:
 - `src/App.tsx:1-7` - Root application component
@@ -111,6 +129,8 @@ Frontend (React) → Backend (Node.js/Express) → MCP Server (Python) → Clash
 - `src/store/chatStore.ts:1-58` - Chat state management with Zustand
 - `src/services/chatService.ts:1-26` - API communication layer
 - `src/types/index.ts` - TypeScript interfaces
+- `nginx.conf:1-81` - Production nginx configuration with gzip, caching, and SPA routing
+- `Dockerfile:1-65` - Multi-stage build (development with Vite, production with nginx)
 
 **Component Architecture**:
 ```
@@ -141,31 +161,44 @@ AppLayout
 - Custom Clash Royale color scheme
 - Supercell Magic font
 - Responsive design
-- TailwindCSS with typography plugin
+- TailwindCSS with typography plugin for markdown rendering
+
+**Production Configuration** (`nginx.conf`):
+- **Server**: nginx on Alpine Linux (port 80)
+- **Gzip Compression**: Enabled for text/JS/CSS/JSON with level 6
+- **Caching**: 1-year cache for static assets (JS, CSS, images, fonts)
+- **SPA Routing**: All routes fallback to index.html for React Router
+- **Security Headers**: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy
+- **Health Check**: `/health` endpoint returns 200 "healthy"
+- **Non-root User**: Runs as nginx user for security
 
 ## Production Deployment
 
 ### Infrastructure
 - **Platform**: AWS Lightsail
-- **CDN**: Cloudflare
+- **DNS/CDN**: Cloudflare
 - **Containerization**: Docker with multi-stage builds
+- **Web Server**: nginx (Alpine) for frontend static file serving
+- **Orchestration**: Docker Compose with development and production overlays
 
 ### Docker Configuration
 
 **Development** (`docker-compose.yml`):
 - All services with development builds
-- Port exposure: Frontend (8080), Backend (3001), MCP (8000)
-- Volume mounts for live development
+- Port exposure: Frontend Vite dev server (5173→3000), Backend (3001), MCP (8000)
+- Volume mounts for live development and hot reload
+- Frontend runs Vite dev server with HMR
 
 **Production** (`docker-compose.prod.yml`):
-- Optimized production builds
+- Optimized production builds with multi-stage Dockerfiles
+- Frontend: nginx Alpine serving static built assets (port 80→8080)
 - Health checks for all services
 - Environment-specific configurations
-- Multi-stage Dockerfiles for reduced image size
+- Reduced image sizes and non-root users
 
 **Service Dependencies**:
 ```
-Frontend → Backend → MCP Server → Clash Royale API
+Frontend (nginx) → Backend (Express) → MCP Server (FastMCP) → Clash Royale API
 ```
 
 ### CI/CD Pipeline
@@ -188,16 +221,22 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ### Environment Configuration
 
 **Backend** (`src/backend/.env`):
-- `OPENAI_API_KEY` - OpenAI API authentication
+- `GEMINI_API_KEY` - Google Gemini API authentication (required)
+- `OPENAI_API_KEY` - Legacy validation (validated but unused, still required by config)
+- `GEMINI_MODEL_NAME` - Gemini model to use (default: `gemini-2.0-flash-lite`)
 - `PORT` - Server port (default: 3001)
-- `NODE_ENV` - Environment mode
-- `RATE_LIMIT_*` - Rate limiting configuration
+- `NODE_ENV` - Environment mode (`development` or `production`)
+- `RATE_LIMIT_WINDOW_MS` - Rate limit window in milliseconds (default: 900000 = 15 minutes)
+- `RATE_LIMIT_MAX_REQUESTS` - Max requests per window (default: 100)
+- `FRONTEND_URL` - Frontend URL for CORS in production
 
 **MCP Server** (`src/mcp/.env`):
 - `CR_API_KEY` - Clash Royale API token
+- `PYTHONUNBUFFERED` - Python output buffering (set to 1 in Docker)
+- `PYTHONDONTWRITEBYTECODE` - Prevent .pyc files (set to 1 in Docker)
 
-**Frontend**:
-- `VITE_API_BASE_URL` - Backend API endpoint
+**Frontend** (Build Args):
+- `VITE_API_BASE_URL` - Backend API endpoint (set during Docker build)
 
 ### Health Monitoring
 
@@ -216,11 +255,12 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 1. **Environment Files**:
    ```bash
-   # Backend
-   echo "OPENAI_API_KEY=your_key" > src/backend/.env
-   
+   # Backend (both keys currently required by config)
+   echo "GEMINI_API_KEY=your_gemini_key" > src/backend/.env
+   echo "OPENAI_API_KEY=your_openai_key" >> src/backend/.env
+
    # MCP Server
-   echo "CR_API_KEY=your_key" > src/mcp/.env
+   echo "CR_API_KEY=your_clash_royale_key" > src/mcp/.env
    ```
 
 2. **Start All Services**:
@@ -276,10 +316,10 @@ npm run preview    # Preview built application
 ## Key Technologies
 
 ### Core Stack
-- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, Zustand
-- **Backend**: Node.js 18+, Express, TypeScript, OpenAI SDK
+- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, Zustand, react-markdown, react-syntax-highlighter, lucide-react
+- **Backend**: Node.js 18+, Express, TypeScript, Google Gemini SDK (`@google/genai`), MCP SDK
 - **MCP Server**: Python 3.12, FastMCP, Requests
-- **Infrastructure**: Docker, AWS Lightsail, Cloudflare
+- **Infrastructure**: Docker (multi-stage builds), nginx (Alpine), AWS Lightsail, Cloudflare DNS
 
 ### Communication Protocols
 - **Frontend ↔ Backend**: HTTP/JSON REST API
@@ -299,13 +339,14 @@ npm run preview    # Preview built application
 ### Chat Processing Flow
 1. User submits message via frontend
 2. Frontend sends HTTP POST to `/api/chat`
-3. Backend validates request and initializes OpenAI
-4. Backend connects to MCP server and discovers tools
-5. OpenAI processes message with available MCP tools
-6. If tools needed: Backend executes via MCP and feeds results back
-7. Iterative tool execution (max 5 cycles) until completion
-8. Final response returned as JSON to frontend
-9. Frontend displays response with markdown rendering
+3. Backend validates request and retrieves/creates user session (based on IP/User-Agent hash)
+4. Backend lazily initializes Gemini service and connects to MCP server (discovers tools on first request)
+5. Gemini processes message with available MCP tools using function calling
+6. If tools needed: Backend executes via MCP and feeds results back to Gemini
+7. Iterative tool execution and chaining (max 5 cycles) until completion
+8. Final response returned as JSON to frontend with conversation ID
+9. Frontend displays response with markdown rendering and syntax highlighting
+10. Session persists for 24 hours or until manually cleared via `/api/chat/clear`
 
 ### Error Handling
 - Graceful degradation when MCP server unavailable
@@ -328,9 +369,12 @@ Chat-Royale/
 │   ├── backend/                # Node.js API Server
 │   │   ├── src/
 │   │   │   ├── server.ts       # Express server setup
-│   │   │   ├── services/       # OpenAI & MCP integration
-│   │   │   ├── api/           # Route handlers
-│   │   │   └── config/        # Environment configuration
+│   │   │   ├── services/       # Gemini & MCP integration
+│   │   │   │   └── geminiService.ts  # Gemini client and session management
+│   │   │   ├── api/           # Route handlers (chat, health)
+│   │   │   ├── config/        # Environment configuration
+│   │   │   ├── middleware/    # Error handling middleware
+│   │   │   └── utils/         # Custom logger
 │   │   ├── package.json       # Node.js dependencies
 │   │   └── Dockerfile         # Multi-stage backend container
 │   └── frontend/              # React Application
@@ -339,11 +383,12 @@ Chat-Royale/
 │       │   ├── components/    # React components
 │       │   ├── store/         # Zustand state management
 │       │   └── services/      # API client
+│       ├── nginx.conf         # Production nginx configuration
 │       ├── package.json       # React dependencies
-│       └── Dockerfile         # Multi-stage frontend container
+│       └── Dockerfile         # Multi-stage frontend container (Vite dev / nginx prod)
 ├── docker-compose.yml         # Development configuration
 ├── docker-compose.prod.yml    # Production overrides
 └── .github/workflows/         # CI/CD pipeline
 ```
 
-This reference provides comprehensive coverage of the Chat Royale project architecture, focusing on the MCP server's tool ecosystem, backend's OpenAI integration, frontend's React architecture, and production deployment on AWS Lightsail with Cloudflare CDN.
+This reference provides comprehensive coverage of the Chat Royale project architecture, focusing on the MCP server's tool ecosystem, backend's Google Gemini integration with persistent session management, frontend's React architecture with nginx production serving, and production deployment on AWS Lightsail with Cloudflare DNS.
