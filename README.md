@@ -6,7 +6,7 @@ AI-powered Clash Royale agent using Gemini 2.0 with MCP tools for real-time game
 
 I recently wrote a technical breakdown on the architecture, my building process and other cool things about this project. You can read it on my websites here:
 
-[Full Technical Deep Dive](https://hasanbaig.net/projects/chat-royale/)
+[Full Technical Deep Dive](https://hasanbaig.net/blog/chat-royale/)
 
 ## Architecture
 
